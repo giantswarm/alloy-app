@@ -2,12 +2,12 @@ apiVersion: v2
 appVersion: 0.0.1
 
 # Please make sure your name DOES NOT end in "app" or "-app".
-name: {APP-NAME}
+name: alloy
 
 # Please describe what the app provides in a sentence or two.
 description: Please add description
 
-home: https://github.com/giantswarm/{APP-NAME}
+home: https://github.com/giantswarm/alloy
 
 # If you have an icon/logo, you should add it to https://github.com/giantswarm/web-assets
 # and set the final URL as a value here and uncomment.

@@ -1,4 +1,4 @@
-name: {APP-NAME}
+name: alloy
 serviceType: managed
 
 project:
@@ -7,6 +7,6 @@ project:
 
 image:
   registry: quay.io
-  name: giantswarm/{APP-NAME}
+  name: giantswarm/alloy
   tag: v0.0.1
   pullPolicy: IfNotPresent
