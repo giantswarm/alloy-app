@@ -1,11 +1,11 @@
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/giantswarm/alloy/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/giantswarm/alloy/tree/main)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/giantswarm/alloy-app/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/giantswarm/alloy-app/tree/main)
 
 [Read me after cloning this template (GS staff only)](https://handbook.giantswarm.io/docs/dev-and-releng/app-developer-processes/adding_app_to_appcatalog/)
 
-# alloy chart
+# alloy-app chart
 
-Giant Swarm offers a alloy App which can be installed in workload clusters.
-Here we define the alloy chart with its templates and default configuration.
+Giant Swarm offers a alloy-app App which can be installed in workload clusters.
+Here we define the alloy-app chart with its templates and default configuration.
 
 **What is this app?**
 
