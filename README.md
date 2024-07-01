@@ -19,7 +19,7 @@ We added Alloy in order to be able to improve our Observability stack and provid
 
 **Who can use it?**
 
-Anyone with a need to collect obseravability data and who need an OpenTelemetry compatible collector.
+Anyone with a need to collect observability data and who need an OpenTelemetry compatible collector.
 
 ## Installing
 
