@@ -7,7 +7,6 @@ icon: https://s.giantswarm.io/app-icons/grafana-alloy/1/light.png
 sources:
 - https://github.com/grafana/alloy/tree/main/operations/helm/charts/alloy
 version: 0.1.0
-annotations:
 maintainers:
   - name: giantswarm/team-atlas
     email: team-atlas@giantswarm.io
