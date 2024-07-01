@@ -1,19 +1,19 @@
-apiVersion: v2
-appVersion: v1.2.0
-name: alloy
-description: Grafana Alloy OpenTelemetry Collector
-home: https://github.com/giantswarm/alloy-app
-icon: https://s.giantswarm.io/app-icons/grafana-alloy/1/light.png
-sources:
-- https://github.com/grafana/alloy/tree/main/operations/helm/charts/alloy
-version: 0.1.0
-maintainers:
-  - name: giantswarm/team-atlas
-    email: team-atlas@giantswarm.io
 annotations:
   application.giantswarm.io/team: atlas
+apiVersion: v2
+appVersion: v1.2.0
 dependencies:
   - name: alloy
     version: 0.4.0
     repository: https://grafana.github.io/helm-charts
     condition: alloy.enabled
+description: Grafana Alloy OpenTelemetry Collector
+home: https://github.com/giantswarm/alloy-app
+icon: https://s.giantswarm.io/app-icons/grafana-alloy/1/light.png
+maintainers:
+  - name: giantswarm/team-atlas
+    email: team-atlas@giantswarm.io
+name: alloy
+sources:
+- https://github.com/grafana/alloy/tree/main/operations/helm/charts/alloy
+version: 0.1.0
