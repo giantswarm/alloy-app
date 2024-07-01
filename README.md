@@ -15,7 +15,7 @@ More details at https://github.com/grafana/alloy
 
 **Why did we add it?**
 
-We added Alloy in order to be able to improve our Observability stack and provides additional capabilities towards obseravability data ingestion and transformation.
+We added Alloy in order to be able to improve our Observability stack and provides additional capabilities towards observability data ingestion and transformation.
 
 **Who can use it?**
 
