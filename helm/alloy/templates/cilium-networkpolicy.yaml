@@ -1,0 +1,44 @@
+{{- if eq .Values.networkPolicy.flavor "cilium" -}}
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "alloy.labels" . | nindent 4 }}
+spec:
+  egress:
+  {{- if .Values.networkPolicy.cilium.egress }}
+  {{- toYaml .Values.networkPolicy.cilium.egress | nindent 2 }}
+  {{- else }}
+  - toEntities:
+    - kube-apiserver
+    - world
+  - toEndpoints:
+    - matchLabels:
+      k8s-app: coredns
+    - matchLabels:
+      k8s-app: k8s-dns-node-cache
+    toPorts:
+    - ports:
+      - port: "53"
+        protocol: ANY
+      - port: "1053"
+        protocol: ANY
+      rules:
+        dns:
+        - matchPattern: '*'
+  {{- end }}
+  endpointSelector:
+    matchLabels:
+      {{- include "alloy.selectorLabels" . | nindent 6 }}
+  ingress:
+  {{- if .Values.networkPolicy.cilium.ingress }}
+  {{- toYaml .Values.networkPolicy.cilium.ingress | nindent 2 }}
+  {{- else }}
+  - toPorts:
+    - ports:
+      - port: "12345"
+        protocol: TCP
+  {{- end }}
+{{- end }}
