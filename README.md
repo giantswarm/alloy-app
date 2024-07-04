@@ -1,7 +1,5 @@
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/giantswarm/alloy-app/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/giantswarm/alloy-app/tree/main)
 
-[Read me after cloning this template (GS staff only)](https://handbook.giantswarm.io/docs/dev-and-releng/app-developer-processes/adding_app_to_appcatalog/)
-
 # alloy chart
 
 Giant Swarm offers a alloy App which can be installed in workload clusters.
@@ -9,9 +7,17 @@ Here we define the alloy chart with its templates and default configuration.
 
 **What is this app?**
 
+Alloy is an OpenTelemetry collector with support for metrics, logs, traces, and profiles.
+
+More details at https://github.com/grafana/alloy
+
 **Why did we add it?**
 
+We added Alloy in order to be able to improve our Observability platform and provide additional capabilities towards observability data ingestion and transformation.
+
 **Who can use it?**
+
+Anyone with a need to collect observability data and who need an OpenTelemetry compatible collector.
 
 ## Installing
 
@@ -52,19 +58,6 @@ workload cluster `abc12`:
 
 See our [full reference on how to configure apps](https://docs.giantswarm.io/getting-started/app-platform/app-configuration/) for more details.
 
-## Compatibility
-
-This app has been tested to work with the following workload cluster release versions:
-
-- _add release version_
-
-## Limitations
-
-Some apps have restrictions on how they can be deployed.
-Not following these limitations will most likely result in a broken deployment.
-
-- _add limitation_
-
 ## Credit
 
-- {APP HELM REPOSITORY}
+- https://github.com/grafana/alloy
