@@ -1,0 +1,62 @@
+{{- if and .Values.psp.enabled (index .Values "alloy").alloy.securityContext.privileged }}
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
+    "helm.sh/hook": pre-install,pre-upgrade
+  labels:
+    {{- include "alloy.labels" . | nindent 4 }}
+  name: {{ .Release.Name }}-privileged
+spec:
+  hostPID: true
+  fsGroup:
+    rule: RunAsAny
+  privileged: true
+  readOnlyRootFilesystem: false
+  runAsUser:
+    rule: RunAsAny
+  runAsGroup:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - hostPath
+  - secret
+  - emptyDir
+  - projected
+  - configMap
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Name }}-privileged
+  labels:
+    {{- include "alloy.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - "extensions"
+    resourceNames:
+      - {{ .Release.Name }}-privileged
+    resources:
+      - podsecuritypolicies
+    verbs:
+      - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Release.Name }}-privileged
+  labels:
+    {{- include "alloy.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Name }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "alloy.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

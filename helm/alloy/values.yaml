@@ -10,9 +10,16 @@ networkPolicy:
     egress: []
     ingress: []
 
+psp:
+  enabled: true
+
 alloy:
   # You can make the whole chart ineffective by setting enabled to "false"
   enabled: true
+
+  alloy:
+    securityContext:
+      privileged: true
 
   image:
     repository: giantswarm/alloy
@@ -22,3 +29,7 @@ alloy:
 
   serviceMonitor:
     enabled: true
+
+serviceAccount:
+  # -- Whether to create a service account for the Grafana Alloy deployment.
+  create: true
