@@ -5,10 +5,10 @@ global:
 
 networkPolicy:
   flavor: cilium
-  # Override Cilium Network Policy egress/ingress rules
-  #cilium:
-  #  egress: []
-  #  ingress: []
+  cilium:
+    # Override Cilium Network Policy egress/ingress rules
+    egress: []
+    ingress: []
 
 alloy:
   # You can make the whole chart ineffective by setting enabled to "false"
