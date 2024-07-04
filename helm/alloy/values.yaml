@@ -1,12 +1,16 @@
-name: alloy
-serviceType: managed
+global:
+  image:
+    registry: gsoci.azurecr.io
 
-project:
-  branch: "[[ .Branch ]]"
-  commit: "[[ .SHA ]]"
+alloy:
+  # You can make the whole chart ineffective by setting enabled to "false"
+  enabled: true
 
-image:
-  registry: quay.io
-  name: giantswarm/alloy
-  tag: v0.0.1
-  pullPolicy: IfNotPresent
+  image:
+    repository: giantswarm/alloy
+  configReloader:
+    image:
+      repository: giantswarm/configmap-reload
+
+  serviceMonitor:
+    enabled: true

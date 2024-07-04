@@ -1,37 +1,21 @@
-{{/* vim: set filetype=mustache: */}}
-{{/*
-Expand the name of the chart.
-*/}}
-{{- define "name" -}}
-{{- .Chart.Name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Create chart name and version as used by the chart label.
-*/}}
-{{- define "chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Selector labels
-*/}}
-{{- define "labels.selector" -}}
-app.kubernetes.io/name: {{ include "name" . | quote }}
-app.kubernetes.io/instance: {{ .Release.Name | quote }}
-{{- end -}}
-
 {{/*
 Common labels
 */}}
-{{- define "labels.common" -}}
-{{ include "labels.selector" . }}
-app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-application.giantswarm.io/branch: {{ .Chart.Annotations.branch | replace "#" "-" | replace "/" "-" | replace "." "-" | trunc 63 | trimSuffix "-" | quote }}
-application.giantswarm.io/commit: {{ .Chart.Annotations.commit | quote }}
-application.giantswarm.io/team: {{ index .Chart.Annotations "application.giantswarm.io/team" | quote }}
+{{- define "alloy.labels" -}}
+helm.sh/chart: {{ include "alloy.chart" . }}
+{{ include "alloy.selectorLabels" . }}
+{{- if index .Values "$chart_tests" }}
+app.kubernetes.io/version: "vX.Y.Z"
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- else }}
+{{/* substr trims delimeter prefix char from alloy.imageId output
+    e.g. ':' for tags and '@' for digests.
+    For digests, we crop the string to a 7-char (short) sha. */}}
+app.kubernetes.io/version: {{ (include "alloy.imageId" .) | trunc 15 | trimPrefix "@sha256" | trimPrefix ":" | quote }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: alloy
+application.giantswarm.io/team: {{ index .Chart.Annotations "application.giantswarm.io/team" | default "atlas" | quote }}
 giantswarm.io/managed-by: {{ .Release.Name | quote }}
-giantswarm.io/service-type: {{ .Values.serviceType }}
-helm.sh/chart: {{ include "chart" . | quote }}
-{{- end -}}
+giantswarm.io/service-type: managed
+{{- end }}
+{{- end }}

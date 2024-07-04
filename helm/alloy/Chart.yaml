@@ -1,22 +1,19 @@
-apiVersion: v2
-appVersion: 0.0.1
-
-# Please make sure your name DOES NOT end in "app" or "-app".
-name: alloy
-
-# Please describe what the app provides in a sentence or two.
-description: Please add description
-
-home: https://github.com/giantswarm/alloy
-
-# If you have an icon/logo, you should add it to https://github.com/giantswarm/web-assets
-# and set the final URL as a value here and uncomment.
-#icon: https://s.giantswarm.io/app-icons/example/1/light.svg
-
-sources:
-- https://github.com/some-org/some-repo
-version: 0.0.0-dev # [[ .Version ]] if you're using architect instead of app-build-suite
 annotations:
-  application.giantswarm.io/team: TEAM-NAME # used through .Chart.Annotations.team (not replaced automatically)
-  branch: my-branch # Used through .Chart.Annotations.branch (This is not replaced automatically)
-  commit: f00bar # Used through .Chart.Annotations.commit (This is not replaced automatically)
+  application.giantswarm.io/team: atlas
+apiVersion: v2
+appVersion: v1.2.0
+dependencies:
+  - name: alloy
+    version: 0.4.0
+    repository: https://grafana.github.io/helm-charts
+    condition: alloy.enabled
+description: Grafana Alloy OpenTelemetry Collector
+home: https://github.com/giantswarm/alloy-app
+icon: https://s.giantswarm.io/app-icons/grafana-alloy/1/light.png
+maintainers:
+  - name: giantswarm/team-atlas
+    email: team-atlas@giantswarm.io
+name: alloy
+sources:
+- https://github.com/grafana/alloy/tree/main/operations/helm/charts/alloy
+version: 0.1.0
