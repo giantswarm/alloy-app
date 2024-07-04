@@ -1,6 +1,14 @@
+# Available values options are available at https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/values.yaml
 global:
   image:
     registry: gsoci.azurecr.io
+
+networkPolicy:
+  flavor: cilium
+  cilium:
+    # Override Cilium Network Policy egress/ingress rules
+    egress: []
+    ingress: []
 
 alloy:
   # You can make the whole chart ineffective by setting enabled to "false"
