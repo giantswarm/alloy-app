@@ -1,7 +1,9 @@
 checks:
   exclude:
+  # Required for Alloy to be able to start, otherwise the following error is thrown:
+  # Error: failed to create the remotecfg service: mkdir /tmp/alloy: read-only file system
   - no-read-only-root-fs
-  - run-as-non-root
+  # Seems like a broken check, the service account is in fact created.
   - non-existent-service-account
   - unset-cpu-requirements
   - unset-memory-requirements

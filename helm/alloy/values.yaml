@@ -19,13 +19,34 @@ alloy:
 
   alloy:
     securityContext:
-      privileged: true
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      runAsUser: 473
+      runAsGroup: 473
+      runAsNonRoot: true
+      readOnlyRootFilesystem: true
+      seccompProfile:
+        type: RuntimeDefault
 
   image:
     repository: giantswarm/alloy
+
   configReloader:
     image:
       repository: giantswarm/configmap-reload
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      runAsUser: 473
+      runAsGroup: 473
+      runAsNonRoot: true
+      readOnlyRootFilesystem: true
+      seccompProfile:
+        type: RuntimeDefault
 
   serviceMonitor:
     enabled: true
