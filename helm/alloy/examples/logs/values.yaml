@@ -29,6 +29,13 @@ alloy:
             source = "level"
             value = "debug"
           }
+
+          // Add app=myApp label to log metadata.
+          stage.static_labels {
+            values = {
+              app = "myApp",
+            }
+          }
         }
 
         // Send log entries to Loki.
