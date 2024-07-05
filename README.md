@@ -1,13 +1,13 @@
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/giantswarm/alloy-app/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/giantswarm/alloy-app/tree/main)
 
-# alloy chart
+# Alloy chart
 
-Giant Swarm offers a alloy App which can be installed in workload clusters.
-Here we define the alloy chart with its templates and default configuration.
+Giant Swarm offers an Alloy App which can be installed in workload clusters.
+Here we define the Alloy chart with its templates and default configuration.
 
 **What is this app?**
 
-Alloy is an OpenTelemetry collector with support for metrics, logs, traces, and profiles.
+Alloy is an [OpenTelemetry](https://opentelemetry.io/) collector with support for metrics, logs, traces, and profiles.
 
 More details at https://github.com/grafana/alloy
 
@@ -17,7 +17,7 @@ We added Alloy in order to be able to improve our Observability platform and pro
 
 **Who can use it?**
 
-Anyone with a need to collect observability data and who need an OpenTelemetry compatible collector.
+Anyone with a need to collect observability data and who need an [OpenTelemetry](https://opentelemetry.io/) compatible collector.
 
 ## Installing
 
@@ -36,24 +36,6 @@ kubectl gs template app --name alloy --catalog giantswarm-playground --target-na
 ## Configuring
 
 See examples in [helm/alloy/examples](helm/alloy/examples) for how to configure the app.
-
-### Sample App CR and ConfigMap for the management cluster
-
-If you have access to the Kubernetes API on the management cluster, you could create
-the App CR and ConfigMap directly.
-
-Here is an example that would install the app to
-workload cluster `abc12`:
-
-```yaml
-# appCR.yaml
-
-```
-
-```yaml
-# user-values-configmap.yaml
-
-```
 
 See our [full reference on how to configure apps](https://docs.giantswarm.io/getting-started/app-platform/app-configuration/) for more details.
 
