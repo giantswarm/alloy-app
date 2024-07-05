@@ -26,7 +26,6 @@ alloy:
       runAsUser: 473
       runAsGroup: 473
       runAsNonRoot: true
-      readOnlyRootFilesystem: true
       seccompProfile:
         type: RuntimeDefault
 
@@ -44,7 +43,6 @@ alloy:
       runAsUser: 473
       runAsGroup: 473
       runAsNonRoot: true
-      readOnlyRootFilesystem: true
       seccompProfile:
         type: RuntimeDefault
 
