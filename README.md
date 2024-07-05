@@ -8,10 +8,9 @@
   <a href="https://dl.circleci.com/status-badge/redirect/gh/giantswarm/alloy-app/tree/main"><img src="https://dl.circleci.com/status-badge/img/gh/giantswarm/alloy-app/tree/main.svg?style=svg" alt="CircleCI"></a>
 </p>
 
-# Alloy chart
+Giant Swarm offers Grafana Alloy App which can be installed in workload clusters.
 
-Giant Swarm offers an Alloy App which can be installed in workload clusters.
-Here we define the Alloy chart with its templates and default configuration.
+Here we define the Grafana Alloy chart with its templates and default configuration.
 
 **What is this app?**
 
