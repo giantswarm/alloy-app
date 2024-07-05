@@ -29,14 +29,7 @@ There are several ways to install this app onto a workload cluster.
 
 ## Configuring
 
-### values.yaml
-
-**This is an example of a values file you could upload using our web interface.**
-
-```yaml
-# values.yaml
-
-```
+See examples in [helm/alloy/examples](helm/alloy/examples) for how to configure the app.
 
 ### Sample App CR and ConfigMap for the management cluster
 
