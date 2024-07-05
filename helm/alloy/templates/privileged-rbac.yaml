@@ -7,7 +7,7 @@ metadata:
     "helm.sh/hook": pre-install,pre-upgrade
   labels:
     {{- include "alloy.labels" . | nindent 4 }}
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-hostpath
 spec:
   readOnlyRootFilesystem: false
   volumes:
@@ -16,14 +16,14 @@ spec:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-hostpath
   labels:
     {{- include "alloy.labels" . | nindent 4 }}
 rules:
   - apiGroups:
       - "extensions"
     resourceNames:
-      - {{ .Release.Name }}
+      - {{ .Release.Name }}-hostpath
     resources:
       - podsecuritypolicies
     verbs:
@@ -32,13 +32,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-hostpath
   labels:
     {{- include "alloy.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-hostpath
 subjects:
   - kind: ServiceAccount
     name: {{ template "alloy.serviceAccountName" .Subcharts.alloy.serviceAccount }}
