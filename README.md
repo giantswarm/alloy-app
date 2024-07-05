@@ -23,10 +23,9 @@ Anyone with a need to collect observability data and who need an OpenTelemetry c
 
 There are several ways to install this app onto a workload cluster.
 
-- [Using GitOps to instantiate the App](https://docs.giantswarm.io/advanced/gitops/apps/)
-- [Using our web interface](https://docs.giantswarm.io/platform-overview/web-interface/app-platform/#installing-an-app).
-- By creating an [App resource](https://docs.giantswarm.io/use-the-api/management-api/crd/apps.application.giantswarm.io/) in the management cluster as explained in [Getting started with App Platform](https://docs.giantswarm.io/getting-started/app-platform/).
-- Using [kubectl gs](https://docs.giantswarm.io/vintage/use-the-api/kubectl-gs/) command line tool.
+- [Using GitOps](https://docs.giantswarm.io/vintage/advanced/gitops/apps/add_appcr/)
+- [Using our web interface](https://docs.giantswarm.io/vintage/platform-overview/web-interface/app-platform/#installing-an-app)
+- [Using the App platform](https://docs.giantswarm.io/vintage/getting-started/app-platform/deploy-app/) ([kubectl gs template app](https://docs.giantswarm.io/vintage/use-the-api/kubectl-gs/template-app/) reference)
 
 Example with `kubectl gs`:
 
