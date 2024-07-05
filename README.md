@@ -26,6 +26,13 @@ There are several ways to install this app onto a workload cluster.
 - [Using GitOps to instantiate the App](https://docs.giantswarm.io/advanced/gitops/apps/)
 - [Using our web interface](https://docs.giantswarm.io/platform-overview/web-interface/app-platform/#installing-an-app).
 - By creating an [App resource](https://docs.giantswarm.io/use-the-api/management-api/crd/apps.application.giantswarm.io/) in the management cluster as explained in [Getting started with App Platform](https://docs.giantswarm.io/getting-started/app-platform/).
+- Using [kubectl gs](https://docs.giantswarm.io/vintage/use-the-api/kubectl-gs/) command line tool.
+
+Example with `kubectl gs`:
+
+```
+kubectl gs template app --name alloy --catalog giantswarm-playground --target-namespace alloy --cluster-name myCluster --version 0.1.0 --user-configmap helm/alloy/examples/mimir-rules/values.yaml | kubectl apply -f -
+```
 
 ## Configuring
 
