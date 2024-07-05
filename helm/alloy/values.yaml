@@ -10,15 +10,45 @@ networkPolicy:
     egress: []
     ingress: []
 
+# Enable Kyverno PolicyException
+kyvernoPolicyExceptions:
+  enabled: true
+  namespace: giantswarm
+
 alloy:
   # You can make the whole chart ineffective by setting enabled to "false"
   enabled: true
 
+  alloy:
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      readOnlyRootFilesystem: false
+      runAsUser: 473
+      runAsGroup: 473
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+
   image:
     repository: giantswarm/alloy
+
   configReloader:
     image:
       repository: giantswarm/configmap-reload
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      readOnlyRootFilesystem: true
+      runAsUser: 473
+      runAsGroup: 473
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
 
   serviceMonitor:
     enabled: true
