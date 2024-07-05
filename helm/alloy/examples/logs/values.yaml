@@ -13,13 +13,28 @@ alloy:
           }
         }
 
-        // Filter out log entries that are not valid JSON.
+        // Filter log entries.
         loki.process "default" {
           forward_to = [loki.write.default.receiver]
 
+          // Parse log entries as JSON and drop invalid ones.
           stage.json {
             expressions = {entry = ""}
             drop_malformed = true
+          }
+
+          // Drop log entries with level=debug.
+          // For example this would drop {"level":"debug","msg":"debug message"}
+          stage.drop {
+            source = "level"
+            value = "debug"
+          }
+
+          // Add app=myApp label to log metadata.
+          stage.static_labels {
+            values = {
+              app = "myApp",
+            }
           }
         }
 
