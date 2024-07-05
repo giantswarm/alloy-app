@@ -16,9 +16,9 @@ spec:
     - world
   - toEndpoints:
     - matchLabels:
-      k8s-app: coredns
+        k8s-app: coredns
     - matchLabels:
-      k8s-app: k8s-dns-node-cache
+        k8s-app: k8s-dns-node-cache
     toPorts:
     - ports:
       - port: "53"
