@@ -23,6 +23,7 @@ alloy:
       capabilities:
         drop:
         - ALL
+      readOnlyRootFilesystem: false
       runAsUser: 473
       runAsGroup: 473
       runAsNonRoot: true
@@ -40,6 +41,7 @@ alloy:
       capabilities:
         drop:
         - ALL
+      readOnlyRootFilesystem: true
       runAsUser: 473
       runAsGroup: 473
       runAsNonRoot: true
