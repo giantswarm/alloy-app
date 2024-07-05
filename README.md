@@ -1,5 +1,6 @@
 <p align="center">
-    <img src="assets/logo.png" alt="Grafana Alloy logo" height="100px">
+    <img src="assets/logo_alloy_light.svg#gh-dark-mode-only" alt="Grafana Alloy logo" height="100px">
+    <img src="assets/logo_alloy_dark.svg#gh-light-mode-only" alt="Grafana Alloy logo" height="100px">
 </p>
 
 <p align="center">
