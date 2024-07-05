@@ -50,7 +50,3 @@ alloy:
 
   serviceMonitor:
     enabled: true
-
-serviceAccount:
-  # -- Whether to create a service account for the Grafana Alloy deployment.
-  create: true
