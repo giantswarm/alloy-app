@@ -1,0 +1,46 @@
+{{- if and .Values.psp.enabled }}
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
+    "helm.sh/hook": pre-install,pre-upgrade
+  labels:
+    {{- include "alloy.labels" . | nindent 4 }}
+  name: {{ .Release.Name }}
+spec:
+  readOnlyRootFilesystem: false
+  volumes:
+  - hostPath
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "alloy.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - "extensions"
+    resourceNames:
+      - {{ .Release.Name }}
+    resources:
+      - podsecuritypolicies
+    verbs:
+      - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "alloy.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Name }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ template "alloy.serviceAccountName" .Subcharts.alloy.serviceAccount }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
