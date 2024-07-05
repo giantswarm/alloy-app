@@ -1,0 +1,17 @@
+alloy:
+  alloy:
+    configMap:
+      create: true
+      content: |
+        mimir.rules.kubernetes "local" {
+            // The Mimir Gateway address to import PrometheusRules into.
+            address = "http://mimir-gateway.mimir"
+            tenant_id = "anonymous"
+
+            // Select PrometheusRules with foo=bar label in all namespaces.
+            rule_selector {
+                match_labels = {
+                    "foo" = "bar",
+                }
+            }
+        }

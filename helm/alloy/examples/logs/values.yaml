@@ -1,0 +1,31 @@
+alloy:
+  alloy:
+    configMap:
+      create: true
+      content: |
+        // Select PodLogs with foo=bar label in all namespaces.
+        loki.source.podlogs "default" {
+          forward_to = [loki.process.default.receiver]
+          selector {
+            match_labels = {
+              "foo" = "bar",
+            }
+          }
+        }
+
+        // Filter out log entries that are not valid JSON.
+        loki.process "default" {
+          forward_to = [loki.write.default.receiver]
+
+          stage.json {
+            expressions = {entry = ""}
+            drop_malformed = true
+          }
+        }
+
+        // Send log entries to Loki.
+        loki.write "default" {
+          endpoint {
+            url = "https://loki-gateway.loki/loki/api/v1/push"
+          }
+        }
