@@ -1,4 +1,11 @@
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/giantswarm/alloy-app/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/giantswarm/alloy-app/tree/main)
+<p align="center">
+    <img src="assets/logo.png" alt="Grafana Alloy logo" height="100px">
+</p>
+
+<p align="center">
+  <a href="https://github.com/giantswarm/alloy/releases"><img src="https://img.shields.io/github/release/giantswarm/alloy.svg" alt="Latest Release"></a>
+  <a href="https://dl.circleci.com/status-badge/redirect/gh/giantswarm/alloy-app/tree/main"><img src="https://dl.circleci.com/status-badge/img/gh/giantswarm/alloy-app/tree/main.svg?style=svg" alt="CircleCI"></a>
+</p>
 
 # Alloy chart
 
