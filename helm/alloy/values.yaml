@@ -10,8 +10,10 @@ networkPolicy:
     egress: []
     ingress: []
 
-psp:
+# Enable Kyverno PolicyException
+kyvernoPolicyExceptions:
   enabled: true
+  namespace: giantswarm
 
 alloy:
   # You can make the whole chart ineffective by setting enabled to "false"
