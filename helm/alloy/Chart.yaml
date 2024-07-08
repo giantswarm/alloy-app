@@ -15,5 +15,5 @@ maintainers:
     email: team-atlas@giantswarm.io
 name: alloy
 sources:
-- https://github.com/grafana/alloy/tree/main/operations/helm/charts/alloy
+  - https://github.com/grafana/alloy/tree/main/operations/helm/charts/alloy
 version: 0.1.0
