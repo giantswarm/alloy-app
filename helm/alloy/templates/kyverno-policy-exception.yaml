@@ -19,6 +19,12 @@ spec:
     ruleNames:
     - restricted-volumes
     - autogen-restricted-volumes
+{{- if not .Values.alloy.alloy.securityContext.runAsNonRoot }}
+  - policyName: require-run-as-non-root-user
+    ruleNames:
+    - run-as-non-root-user
+    - autogen-run-as-non-root-user
+{{- end }}
   match:
     any:
     - resources:
