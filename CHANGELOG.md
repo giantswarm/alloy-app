@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add some useful configuration into the logs helm chart values example
+
 ## [0.3.0] - 2024-07-15
 
 ### Added
