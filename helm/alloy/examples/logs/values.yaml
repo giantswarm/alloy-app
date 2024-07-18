@@ -44,3 +44,28 @@ alloy:
             url = "https://loki-gateway.loki/loki/api/v1/push"
           }
         }
+    mounts:
+      varlog: true
+      dockercontainers: true
+      extra:
+      - name: runlogjournal
+        mountPath: /run/log/journal
+        readOnly: true
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
+      runAsNonRoot: false
+  controller:
+    type: daemonset
+    tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+      operator: Exists
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
+      operator: Exists
+    volumes:
+      extra:
+      - name: runlogjournal
+        hostPath:
+          path: /run/log/journal
