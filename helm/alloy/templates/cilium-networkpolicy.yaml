@@ -28,6 +28,15 @@ spec:
       rules:
         dns:
         - matchPattern: '*'
+  - toEndpoints:
+    - matchLabels:
+        app.kubernetes.io/name: ingress-nginx
+    toPorts:
+    - ports:
+      - port: "80"
+        protocol: ANY
+      - port: "443"
+        protocol: ANY
   {{- end }}
   endpointSelector:
     matchLabels:

@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add some useful configuration into the logs helm chart values example
 
+### Fixed
+
+- Allow traffic to nginx-ingress-controller (needed when LB is skipped).
+
 ## [0.3.0] - 2024-07-15
 
 ### Added
@@ -20,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Upgrade alloy upstream chart from 0.4.0 to 0.5.1
-  - This bumps the version of alloy from 1.2.0 to 1.2.1 
+  - This bumps the version of alloy from 1.2.0 to 1.2.1
 
 ## [0.2.0] - 2024-07-08
 
