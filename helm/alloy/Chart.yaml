@@ -16,4 +16,4 @@ maintainers:
 name: alloy
 sources:
   - https://github.com/grafana/alloy/tree/main/operations/helm/charts/alloy
-version: 0.3.0
+version: 0.3.1
