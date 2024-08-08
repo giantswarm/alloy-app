@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update alloy upstream chart from 0.5.1 to 0.6.0
+  - This bumps the version of alloy from 1.2.1 to 1.3.0
+  - It does introduces breaking changes:
+    - [`otelcol.exporter.otlp`,`otelcol.exporter.loadbalancing`]: Change the default gRPC load balancing strategy.
+    - `beyla.ebpf` default value for argument `unmatched` in the block `routes`.
+    - more details at https://github.com/grafana/alloy/blob/v1.3.0/CHANGELOG.md#v130
+
 ## [0.3.1] - 2024-07-24
 
 ### Added
