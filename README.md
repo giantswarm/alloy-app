@@ -34,7 +34,15 @@ There are several ways to install this app onto a workload cluster.
 - [Using our web interface](https://docs.giantswarm.io/vintage/platform-overview/web-interface/app-platform/#installing-an-app)
 - [Using the App platform](https://docs.giantswarm.io/vintage/getting-started/app-platform/deploy-app/) ([kubectl gs template app](https://docs.giantswarm.io/vintage/use-the-api/kubectl-gs/template-app/) reference)
 
-Example with `kubectl gs`:
+### With `helm`
+
+```
+helm repo add giantswarm https://giantswarm.github.io/giantswarm-catalog/
+helm repo update
+helm install alloy giantswarm/alloy --values helm/alloy/examples/mimir-rules/values.yaml
+```
+
+### With `kubectl gs`
 
 ```
 kubectl gs template app --name alloy --catalog giantswarm-playground --target-namespace alloy --cluster-name myCluster --version 0.1.0 --user-configmap helm/alloy/examples/mimir-rules/values.yaml | kubectl apply -f -
