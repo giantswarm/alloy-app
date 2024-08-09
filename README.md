@@ -45,7 +45,7 @@ helm install alloy giantswarm/alloy --values helm/alloy/examples/mimir-rules/val
 ### With `kubectl gs`
 
 ```
-kubectl gs template app --name alloy --catalog giantswarm-playground --target-namespace alloy --cluster-name myCluster --version 0.1.0 --user-configmap helm/alloy/examples/mimir-rules/values.yaml | kubectl apply -f -
+kubectl gs template app --cluster-name myCluster --name alloy --catalog giantswarm --target-namespace alloy --version 1.0.0 --user-configmap helm/alloy/examples/mimir-rules/values.yaml | kubectl apply -f -
 ```
 
 ## Configuring
