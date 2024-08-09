@@ -44,16 +44,15 @@ helm install alloy giantswarm/alloy --values helm/alloy/examples/mimir-rules/val
 kubectl gs template app --cluster-name myCluster --name alloy --catalog giantswarm --target-namespace alloy --version 1.0.0 --user-configmap helm/alloy/examples/mimir-rules/values.yaml | kubectl apply -f -
 ```
 
-[App platform documentation](https://docs.giantswarm.io/vintage/getting-started/app-platform/deploy-app/)
-[kubectl gs template app](https://docs.giantswarm.io/vintage/use-the-api/kubectl-gs/template-app/) reference
+See [App platform documentation](https://docs.giantswarm.io/vintage/getting-started/app-platform/deploy-app/) and [kubectl gs template app](https://docs.giantswarm.io/vintage/use-the-api/kubectl-gs/template-app/) reference
 
 ### Using GiantsSwarm web interface
 
-[Web interface documentation](https://docs.giantswarm.io/vintage/platform-overview/web-interface/app-platform/#installing-an-app)
+See [Web interface documentation](https://docs.giantswarm.io/vintage/platform-overview/web-interface/app-platform/#installing-an-app)
 
 ### Using GitOps
 
-[GitOps documentation](https://docs.giantswarm.io/vintage/advanced/gitops/apps/add_appcr/)
+See [GitOps documentation](https://docs.giantswarm.io/vintage/advanced/gitops/apps/add_appcr/)
 
 ## Configuring
 
