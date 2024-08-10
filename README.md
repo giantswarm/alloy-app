@@ -30,15 +30,29 @@ Anyone with a need to collect observability data and who need an [OpenTelemetry]
 
 There are several ways to install this app onto a workload cluster.
 
-- [Using GitOps](https://docs.giantswarm.io/vintage/advanced/gitops/apps/add_appcr/)
-- [Using our web interface](https://docs.giantswarm.io/vintage/platform-overview/web-interface/app-platform/#installing-an-app)
-- [Using the App platform](https://docs.giantswarm.io/vintage/getting-started/app-platform/deploy-app/) ([kubectl gs template app](https://docs.giantswarm.io/vintage/use-the-api/kubectl-gs/template-app/) reference)
-
-Example with `kubectl gs`:
+### Using `helm`
 
 ```
-kubectl gs template app --name alloy --catalog giantswarm-playground --target-namespace alloy --cluster-name myCluster --version 0.1.0 --user-configmap helm/alloy/examples/mimir-rules/values.yaml | kubectl apply -f -
+helm repo add giantswarm https://giantswarm.github.io/giantswarm-catalog/
+helm repo update
+helm install alloy giantswarm/alloy --values helm/alloy/examples/mimir-rules/values.yaml
 ```
+
+### Using `kubectl` GiantSwarm plugin
+
+```
+kubectl gs template app --cluster-name myCluster --name alloy --catalog giantswarm --target-namespace alloy --version 1.0.0 --user-configmap helm/alloy/examples/mimir-rules/values.yaml | kubectl apply -f -
+```
+
+See [App platform documentation](https://docs.giantswarm.io/vintage/getting-started/app-platform/deploy-app/) and [kubectl gs template app](https://docs.giantswarm.io/vintage/use-the-api/kubectl-gs/template-app/) reference.
+
+### Using GiantsSwarm web interface
+
+See [Web interface documentation](https://docs.giantswarm.io/vintage/platform-overview/web-interface/app-platform/#installing-an-app)
+
+### Using GitOps
+
+See [GitOps documentation](https://docs.giantswarm.io/vintage/advanced/gitops/apps/add_appcr/)
 
 ## Configuring
 
