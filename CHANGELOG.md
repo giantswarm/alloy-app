@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add Secret template in helm chart to alloy for environment variables injection.
+
 ### Changed
 
 - Update alloy upstream chart from 0.5.1 to 0.6.0
