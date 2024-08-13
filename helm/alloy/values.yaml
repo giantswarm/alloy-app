@@ -19,10 +19,6 @@ alloy:
   # You can make the whole chart ineffective by setting enabled to "false"
   enabled: true
 
-  secret:
-    create: true
-    content: ''
-
   alloy:
     securityContext:
       allowPrivilegeEscalation: false
@@ -35,6 +31,9 @@ alloy:
       runAsNonRoot: true
       seccompProfile:
         type: RuntimeDefault
+    secret:
+      create: false
+      content: ''
 
   image:
     repository: giantswarm/alloy
