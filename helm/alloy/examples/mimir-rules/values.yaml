@@ -20,11 +20,11 @@ alloy:
                 }
             }
         }
-    secret:
-      create: true
-      content: |
-        BASIC_AUTH_USERNAME: dXNlcm5hbWVfcGxhY2Vob2xkZXIK
-        BASIC_AUTH_PASSWORD: cGFzc3dvcmRfcGxhY2Vob2xkZXIK
+    extraSecretEnv:
+    - name: BASIC_AUTH_USERNAME
+      value: username_placeholder
+    - name: BASIC_AUTH_PASSWORD
+      value: password_placeholder
     envFrom:
     - secretRef:
         name: alloy-mimir-rules
