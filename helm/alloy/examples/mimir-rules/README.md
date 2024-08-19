@@ -8,7 +8,7 @@ This will deploy and configure Alloy to load PrometheusRules to Mimir.
 
 Alloy will select PrometheusRules with the foo=bar label in every namespaces and load them to Mimir.
 
-It uses Alloy [`mimir.rules.prometheus`](https://grafana.com/docs/alloy/latest/reference/components/mimir/mimir.rules.kubernetes) component is used.
+It uses Alloy [`mimir.rules.prometheus`](https://grafana.com/docs/alloy/latest/reference/components/mimir/mimir.rules.kubernetes) component.
 
 ### Authentication
 
