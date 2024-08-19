@@ -1,9 +1,0 @@
-prometheus.remote_write "LABEL" {
-  endpoint {
-    url = "https://mimir.url//api/v1/push"
-    basic_auth {
-      username = env("BASIC_AUTH_USERNAME")
-      password = env("BASIC_AUTH_PASSWORD")
-    }
-  }
-}
