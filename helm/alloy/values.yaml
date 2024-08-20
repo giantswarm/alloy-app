@@ -62,5 +62,12 @@ alloy:
       seccompProfile:
         type: RuntimeDefault
 
+  controller:
+    volumes:
+      # -- Extra volumes to add to the Grafana Alloy pod.
+      extra:
+        - name: alloy-tmp
+          emptyDir: {}
+
   serviceMonitor:
     enabled: true
