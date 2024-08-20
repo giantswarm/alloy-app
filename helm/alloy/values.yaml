@@ -25,8 +25,7 @@ alloy:
     - --disable-reporting
 
     mounts:
-      # -- Extra volume mounts to add into the Grafana Alloy container. Does not
-      # affect the watch container.
+      # -- Extra volume mounts to add into the Grafana Alloy container.
       extra:
         # This is needed to allow alloy to create files when using readOnlyRootFilesystem
         - name: alloy-tmp
