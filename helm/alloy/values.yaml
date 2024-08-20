@@ -32,6 +32,8 @@ alloy:
       seccompProfile:
         type: RuntimeDefault
 
+    extraSecretEnv: []
+
   image:
     repository: giantswarm/alloy
 
