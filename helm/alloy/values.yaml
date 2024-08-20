@@ -20,6 +20,10 @@ alloy:
   enabled: true
 
   alloy:
+    extraArgs:
+    # Disable reporting to GrafanaLabs
+    - --disable-reporting
+
     securityContext:
       allowPrivilegeEscalation: false
       capabilities:
