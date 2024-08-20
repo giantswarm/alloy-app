@@ -8,6 +8,11 @@ alloy:
             address = "http://mimir-gateway.mimir"
             tenant_id = "anonymous"
 
+            basic_auth {
+              username = env("BASIC_AUTH_USERNAME")
+              password = env("BASIC_AUTH_PASSWORD")
+            }
+
             // Select PrometheusRules with foo=bar label in all namespaces.
             rule_selector {
                 match_labels = {
@@ -15,3 +20,13 @@ alloy:
                 }
             }
         }
+    extraSecretEnv:
+    - name: BASIC_AUTH_USERNAME
+      value: username_placeholder
+    - name: BASIC_AUTH_PASSWORD
+      value: password_placeholder
+    envFrom:
+    - secretRef:
+        name: alloy-mimir-rules
+  controller:
+    type: deployment
