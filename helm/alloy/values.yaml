@@ -25,14 +25,14 @@ alloy:
     - --disable-reporting
 
     extraSecretEnv: []
-  
+
     mounts:
       # -- Extra volume mounts to add into the Grafana Alloy container.
       extra:
         # This is needed to allow alloy to create files when using readOnlyRootFilesystem
         - name: alloy-tmp
           mountPath: /tmp/alloy
-  
+
     # -- Resource requests and limits to apply to the Grafana Alloy container.
     resources:
       limits:
@@ -100,7 +100,6 @@ verticalPodAutoscaler:
     - containerName: alloy
       # -- The controlled resources for the Vertical Pod Autoscaler.
       controlledResources:
-      - cpu
       - memory
       # -- The controlled values for the Vertical Pod Autoscaler. Needs to be either RequestsOnly or RequestsAndLimits.
       controlledValues: "RequestsAndLimits"
