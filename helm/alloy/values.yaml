@@ -84,7 +84,7 @@ alloy:
 
 verticalPodAutoscaler:
   # -- Creates a VerticalPodAutoscaler for the daemonset
-  enabled: false
+  enabled: true
 
   # -- List of recommenders to use for the Vertical Pod Autoscaler.
   # Recommenders are responsible for generating recommendation for the object.
