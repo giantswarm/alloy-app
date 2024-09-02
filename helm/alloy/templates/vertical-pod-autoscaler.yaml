@@ -1,0 +1,42 @@
+### Upstream work being tracked at https://github.com/grafana/alloy/pull/1305
+{{ if .Capabilities.APIVersions.Has "autoscaling.k8s.io/v1" -}}
+{{- if and .Values.verticalPodAutoscaler.enabled -}}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ include "alloy.fullname" . }}
+  labels:
+    {{- include "alloy.labels" . | nindent 4 }}
+    app.kubernetes.io/component: availability
+spec:
+  {{- with .Values.verticalPodAutoscaler.vertical }}
+  {{- with .recommenders }}
+  recommenders:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .resourcePolicy }}
+  resourcePolicy:
+    {{- with .containerPolicies }}
+    containerPolicies:
+    {{- range . }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- with .updatePolicy }}
+  updatePolicy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  targetRef:
+    apiVersion: apps/v1
+    {{- if eq .Values.alloy.controller.type "deployment" }}
+    kind: Deployment
+    {{- else if eq .Values.alloy.controller.type "statefulset" }}
+    kind: StatefulSet
+    {{- else }}
+    kind: DaemonSet
+    {{- end }}
+    name: {{ include "alloy.fullname" . }}
+{{- end }}
+{{- end }}
