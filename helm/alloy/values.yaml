@@ -24,12 +24,18 @@ alloy:
     # Disable reporting to GrafanaLabs
     - --disable-reporting
 
+    mounts:
+      # -- Extra volume mounts to add into the Grafana Alloy container.
+      extra:
+        # This is needed to allow alloy to create files when using readOnlyRootFilesystem
+        - name: alloy-tmp
+          mountPath: /tmp/alloy
     securityContext:
       allowPrivilegeEscalation: false
       capabilities:
         drop:
         - ALL
-      readOnlyRootFilesystem: false
+      readOnlyRootFilesystem: true
       runAsUser: 473
       runAsGroup: 473
       runAsNonRoot: true
@@ -55,6 +61,13 @@ alloy:
       runAsNonRoot: true
       seccompProfile:
         type: RuntimeDefault
+
+  controller:
+    volumes:
+      # -- Extra volumes to add to the Grafana Alloy pod.
+      extra:
+        - name: alloy-tmp
+          emptyDir: {}
 
   serviceMonitor:
     enabled: true
