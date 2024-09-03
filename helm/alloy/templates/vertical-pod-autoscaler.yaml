@@ -9,7 +9,7 @@ metadata:
     {{- include "alloy.labels" . | nindent 4 }}
     app.kubernetes.io/component: availability
 spec:
-  {{- with .Values.verticalPodAutoscaler.vertical }}
+  {{- with .Values.verticalPodAutoscaler }}
   {{- with .recommenders }}
   recommenders:
     {{- toYaml . | nindent 4 }}
@@ -18,9 +18,7 @@ spec:
   resourcePolicy:
     {{- with .containerPolicies }}
     containerPolicies:
-    {{- range . }}
     {{- toYaml . | nindent 4 }}
-    {{- end }}
     {{- end }}
   {{- end }}
   {{- with .updatePolicy }}
