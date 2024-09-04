@@ -1,5 +1,4 @@
-appName: alloy
 repoName: alloy-app
-appCatalog: giantswarm
+appCatalog: default
 providers:
 - capa

@@ -1,4 +1,4 @@
-package basic
+package logs
 
 import (
 	"os"
@@ -26,7 +26,12 @@ const (
 func TestConfig(t *testing.T) {
 	var installNamespace = "kube-system"
 
-	appConfig := config.MustLoad("../../config.yaml")
+	appConfig := config.TestConfig{
+		AppName:    "alloy-logs",
+		RepoName:   "alloy-app",
+		AppCatalog: "default",
+		Providers:  []string{"capa"},
+	}
 
 	// Ensure we use an actual semver version instead of "latest"
 	if os.Getenv("E2E_APP_VERSION") == "latest" {
@@ -74,44 +79,23 @@ func TestConfig(t *testing.T) {
 
 		}).
 		Tests(func() {
-			It("should be disabled by default", func() {
-				When("the app is alloy logs", func() {
-					wcClient, err := state.GetFramework().WC(state.GetCluster().Name)
-					Expect(err).NotTo(HaveOccurred())
+			It("should run as a daemonset", func() {
+				wcClient, err := state.GetFramework().WC(state.GetCluster().Name)
+				Expect(err).NotTo(HaveOccurred())
 
-					Eventually(func() error {
-						logger.Log("Checking if daemonset does exists in the workload cluster")
-						var ds appsv1.DaemonSet
-						err := wcClient.Get(state.GetContext(), types.NamespacedName{Namespace: installNamespace, Name: "alloy-logs"}, &ds)
-						if err != nil {
-							logger.Log("Failed to get daemonset: %v", err)
-						}
-						return err
-					}).
-						WithPolling(5 * time.Second).
-						WithTimeout(5 * time.Minute).
-						Should(HaveOccurred())
-				})
-
-				When("the app is alloy metrics", func() {
-					wcClient, err := state.GetFramework().WC(state.GetCluster().Name)
-					Expect(err).NotTo(HaveOccurred())
-
-					Eventually(func() error {
-						logger.Log("Checking if statefulset does exists in the workload cluster")
-						var sts appsv1.StatefulSet
-						err := wcClient.Get(state.GetContext(), types.NamespacedName{Namespace: installNamespace, Name: "alloy-metrics"}, &sts)
-						if err != nil {
-							logger.Log("Failed to get statefulset: %v", err)
-						}
-						return err
-					}).
-						WithPolling(5 * time.Second).
-						WithTimeout(5 * time.Minute).
-						Should(HaveOccurred())
-				})
+				Eventually(func() error {
+					logger.Log("Checking if daemonset does exists in the workload cluster")
+					var ds appsv1.DaemonSet
+					err := wcClient.Get(state.GetContext(), types.NamespacedName{Namespace: installNamespace, Name: "alloy-logs"}, &ds)
+					if err != nil {
+						logger.Log("Failed to get daemonset: %v", err)
+					}
+					return err
+				}).
+					WithPolling(5 * time.Second).
+					WithTimeout(5 * time.Minute).
+					ShouldNot(HaveOccurred())
 			})
-
 		}).
-		Run(t, "Basic Test")
+		Run(t, "Alloy log test")
 }
