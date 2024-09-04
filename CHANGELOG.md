@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
+### Added
 
+- Add helm chart templating test in ci pipeline.
+- Add tests with ats in ci pipeline.
 - Add e2e tests.
 
 ## [0.5.1] - 2024-09-03
