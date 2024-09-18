@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2] - 2024-09-17
+
 ### Added
 
 - Add helm chart templating test in ci pipeline.
 - Add tests with ats in ci pipeline.
+- Push alloy as a gateway component in collections.
 
 ## [0.5.1] - 2024-09-03
 
@@ -80,7 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - changed: `app.giantswarm.io` label group was changed to `application.giantswarm.io`
 
-[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.5.2...HEAD
+[0.5.2]: https://github.com/giantswarm/alloy-app/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/giantswarm/alloy-app/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/giantswarm/alloy-app/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/giantswarm/alloy-app/compare/v0.4.0...v0.4.1
