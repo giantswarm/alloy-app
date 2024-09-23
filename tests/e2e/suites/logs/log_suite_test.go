@@ -84,7 +84,7 @@ func TestConfig(t *testing.T) {
 					var ds appsv1.DaemonSet
 					err := wcClient.Get(state.GetContext(), types.NamespacedName{Namespace: installNamespace, Name: "alloy-logs"}, &ds)
 					if err != nil {
-						logger.Log("Failed to get daemonset: %v", err)
+						t.Logf("Failed to get daemonset: %v", err)
 					}
 					return err
 				}).
