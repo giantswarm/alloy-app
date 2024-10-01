@@ -5,7 +5,7 @@ metadata:
   name: {{ $podLog.name }}
   namespace: {{ $podLog.namespace }}
   labels:
-    giantswarm.io/managed-by: logging-operator
+    {{- include "alloy.labels" . | nindent 4 }}
   spec:
 {{- $podLog.spec | toYaml | nindent 4 }}
 {{- end }}
