@@ -8,5 +8,5 @@ metadata:
   labels:
     {{- include "alloy.labels" $ | nindent 4 }}
   spec:
-{{- $podLog.spec | toYaml | nindent 4 }}
+    {{- $podLog.spec | toYaml | nindent 4 }}
 {{- end }}
