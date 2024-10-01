@@ -5,7 +5,7 @@ metadata:
   name: {{ $podLog.name }}
   namespace: {{ $podLog.namespace }}
   labels:
-    {{- include "alloy.labels" . | nindent 4 }}
+    {{- include "alloy.labels" $ | nindent 4 }}
   spec:
 {{- $podLog.spec | toYaml | nindent 4 }}
 {{- end }}
