@@ -1,4 +1,5 @@
 {{- range $podLog := .Values.podLogs }}
+---
 apiVersion: monitoring.grafana.com/v1alpha2
 kind: PodLogs
 metadata:
