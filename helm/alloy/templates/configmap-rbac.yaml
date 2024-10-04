@@ -1,0 +1,43 @@
+{{- if (index .Values "configmap-rbac").create }}
+{{ $values := .Subcharts.alloy }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "alloy.fullname" $values }}-configmap
+  labels:
+    {{- include "alloy.labels" . | nindent 4 }}
+    app.kubernetes.io/component: rbac
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups: [""]
+    resources:
+      - "configmaps"
+    verbs:
+      - get
+      - patch
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "alloy.fullname" $values }}-configmap
+  labels:
+    {{- include "alloy.labels" . | nindent 4 }}
+    app.kubernetes.io/component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "alloy.fullname" $values }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "alloy.serviceAccountName" $values }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
