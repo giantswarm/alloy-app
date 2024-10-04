@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Upgrade Alloy upstream chart from 0.7.0 to 0.9.0
   - This bumps the version of Alloy from 1.3.1 to 1.4.1
-  - Breaking changed
+  - Breaking changes
     - Some debug metrics for otelcol components have changed.
     - [otelcol.processor.transform] The functions convert_sum_to_gauge and convert_gauge_to_sum must now be used in the metric context rather than in the datapoint context.
     - Upgrade Beyla from 1.7.0 to 1.8.2. A complete list of changes can be found on the Beyla releases page: https://github.com/grafana/beyla/releases.
