@@ -120,4 +120,5 @@ verticalPodAutoscaler:
     # are applied during the life of a Pod. Possible values are "Off", "Initial", "Recreate", and "Auto".
     # updateMode: Auto
 
+# Creates PodLogs resources along Alloy
 podLogs: []
