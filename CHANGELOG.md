@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Upgrade Alloy upstream chart from 0.7.0 to 0.9.0
-  - This bumps the version of Alloy from 1.3.1 to 1.4.1
+- Upgrade Alloy upstream chart from 0.7.0 to 0.9.1
+  - This bumps the version of Alloy from 1.3.1 to 1.4.2
   - Alloy Breaking changes
     - Some debug metrics for otelcol components have changed.
     - [otelcol.processor.transform] The functions convert_sum_to_gauge and convert_gauge_to_sum must now be used in the metric context rather than in the datapoint context.
