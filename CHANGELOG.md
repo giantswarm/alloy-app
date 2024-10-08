@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add PodLogs as helm chart template.
+
 ### Changed
 
 - Upgrade Alloy upstream chart from 0.7.0 to 0.9.1
