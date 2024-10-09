@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add PodLogs as helm chart template.
+- Add the capability to provide a custom component via a ConfigMap.
 
 ### Changed
 

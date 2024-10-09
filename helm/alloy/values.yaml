@@ -122,3 +122,16 @@ verticalPodAutoscaler:
 
 # Creates PodLogs resources along Alloy
 podLogs: []
+
+# Additional configuration for Alloy
+additionalConfig:
+  # -- Enable additional configuration for Alloy
+  # -- This will create a ConfigMap with the additional configuration, it needs to be explicitly mounted using
+  # -- the `alloy.alloy.mounts.extra` and `alloy.controller.volumes.extra` values.
+  enabled: false
+  # -- Additional configuration for Alloy
+  # -- This configure must be a valid Alloy custom component named `additional_config`.
+  # -- https://grafana.com/docs/alloy/latest/reference/config-blocks/declare/
+  # -- It should have a `forward_to` argument used to connect its output to the Alloy pipeline.
+  # -- There is an example of a valid configuration in the configmap template.
+  config: null

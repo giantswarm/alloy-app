@@ -1,0 +1,26 @@
+{{- if and .Values.alloy.enabled .Values.additionalConfig.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "alloy.fullname" . }}-additionalconfig
+  labels:
+    {{- include "alloy.labels" . | nindent 4 }}
+    app.kubernetes.io/component: config
+data:
+  config.alloy: |-
+    {{- if .Values.additionalConfig.config }}
+    {{ .Values.additionalConfig.config | nindent 4 }}
+    {{- else }}
+    declare "additional_config" {
+      argument "forward_to" {
+        optional = false
+        comment  = "Where to send collected logs."
+      }
+
+      loki.source.kubernetes "default" {
+        targets    = []
+        forward_to = argument.forward_to.value
+      }
+    }
+    {{- end }}
+{{- end }}
