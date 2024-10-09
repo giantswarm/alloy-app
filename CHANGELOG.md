@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - See [Alloy v1.4.0 release notes](https://github.com/grafana/alloy/releases/tag/v1.4.0)
   - Helm chart changes, see [Alloy Helm chart v0.9.0 CHANGELOG](https://github.com/grafana/alloy/blob/helm-chart/0.9.0/operations/helm/charts/alloy/CHANGELOG.md)
 
+### Fixed
+
+- Fix CiliumNetworkPolicy to allow outgoing traffic to other nodes when running Alloy in clustering mode
+
 ## [0.5.2] - 2024-09-17
 
 ### Added
