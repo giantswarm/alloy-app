@@ -19,9 +19,8 @@ workflows:
       - template-chart:
           name: "template-chart-test"
           filters:
-            branches:
-              ignore:
-                - main
+            tags:
+              only: /^v.*/
 
       - architect/push-to-app-catalog:
           context: architect
@@ -32,6 +31,8 @@ workflows:
           chart: "alloy"
           persist_chart_archive: true
           ct_config: ".circleci/ct-config.yaml"
+          requires:
+            - "template-chart-test"
           # Trigger job on git tag.
           filters:
             tags:

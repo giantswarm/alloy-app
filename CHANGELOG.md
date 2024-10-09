@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Bump Chart appVersion to v1.4.2
+- Fix circleci config.
 
 ## [0.6.0] - 2024-10-08
 
