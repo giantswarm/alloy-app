@@ -1,10 +1,55 @@
+---
+# Select pod with app.kubernetes.io/name=my-app label in all namespaces.
 apiVersion: monitoring.grafana.com/v1alpha2
 kind: PodLogs
 metadata:
-  name: alloy-podlog
+  name: my-app
   labels:
     foo: bar
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: myApp
+      app.kubernetes.io/name: my-app
+---
+# Select all pods in alice and bob namespaces
+apiVersion: monitoring.grafana.com/v1alpha2
+kind: PodLogs
+metadata:
+  name: my-namespaces
+  labels:
+    foo: bar
+spec:
+  selector: {}
+  namespaceSelector:
+    matchExpressions:
+    - key: kubernetes.io/metadata.name
+      operator: In
+      values:
+        - alice
+        - bob
+---
+# Select all containers with name starting with dns from pods in the charlie namespace
+apiVersion: monitoring.grafana.com/v1alpha2
+kind: PodLogs
+metadata:
+  name: my-containers
+  labels:
+    foo: bar
+spec:
+  selector: {}
+  namespaceSelector:
+    matchExpressions:
+    - key: kubernetes.io/metadata.name
+      operator: In
+      values:
+        - charlie
+  relabelings:
+  - sourceLabels: [__meta_kubernetes_namespace]
+    targetLabel: namespace
+  - sourceLabels: [__meta_kubernetes_pod_name]
+    targetLabel: pod
+  - sourceLabels: [__meta_kubernetes_pod_container_name]
+    targetLabel: container
+  - action: keep
+    regex: 'dns.+'
+    sourceLabels: [__meta_kubernetes_pod_container_name]
