@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump Chart appVersion to v1.4.2
+- Bump Chart appVersion to v1.4.3
 
 ## [0.6.1] - 2024-10-09
 
