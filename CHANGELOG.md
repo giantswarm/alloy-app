@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump Chart appVersion to v1.4.3
+- Upgrade Alloy upstream chart from 0.9.2 to 0.10.0
+  - This bumps the version of Alloy from 1.4.2 to 1.5.0
 
 ## [0.6.1] - 2024-10-09
 
