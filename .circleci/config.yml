@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  architect: giantswarm/architect@dev:e615bdd8554b61ab51e3611be1b7f41583c10aa8
+  architect: giantswarm/architect@dev:c923348f85a0ab050c44cfc5a56bdb1211c56401
 
 jobs:
   template-chart:
