@@ -1,10 +1,10 @@
 annotations:
   application.giantswarm.io/team: atlas
 apiVersion: v2
-appVersion: v1.7.1
+appVersion: v1.7.4
 dependencies:
   - name: alloy
-    version: 0.12.1
+    version: 0.12.5
     repository: https://grafana.github.io/helm-charts
     condition: alloy.enabled
 description: Grafana Alloy OpenTelemetry Collector
