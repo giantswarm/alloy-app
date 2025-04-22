@@ -32,7 +32,7 @@ func TestConfig(t *testing.T) {
 	if os.Getenv("E2E_APP_VERSION") == "latest" {
 		latestVersion, err := application.GetLatestAppVersion(appConfig.RepoName)
 		if err != nil {
-			panic(err)
+			t.Fatal(err)
 		}
 		latestVersion = strings.TrimPrefix(latestVersion, "v")
 		logger.Log("Overriding 'latest' version to '%s'", latestVersion)
