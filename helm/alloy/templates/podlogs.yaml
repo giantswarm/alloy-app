@@ -1,0 +1,12 @@
+{{- range $podLog := .Values.podLogs }}
+---
+apiVersion: monitoring.grafana.com/v1alpha2
+kind: PodLogs
+metadata:
+  name: {{ $podLog.name }}
+  namespace: {{ $podLog.namespace }}
+  labels:
+    {{- include "alloy.labels" $ | nindent 4 }}
+spec:
+  {{- $podLog.spec | toYaml | nindent 2 }}
+{{- end }}

@@ -7,11 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade Alloy upstream chart from 0.12.1 to 0.12.5
+  - This bumps the version of Alloy from 1.7.1 to 1.7.4
+- Add e2e tests.
+
+## [0.9.0] - 2025-02-26
+
+### Changed
+
+- Upgrade Alloy upstream chart from 0.11.0 to 0.12.1
+  - This bumps the version of Alloy from 1.6.1 to 1.7.1
+
+## [0.8.0] - 2025-02-25
+
+### Changed
+
+- Upgrade Alloy upstream chart from 0.10.1 to 0.11.0
+  - This bumps the version of Alloy from 1.5.0 to 1.6.1
+
+## [0.7.0] - 2024-11-18
+
+### Changed
+
+- Upgrade Alloy upstream chart from 0.9.2 to 0.10.0
+  - This bumps the version of Alloy from 1.4.2 to 1.5.0
+
+## [0.6.1] - 2024-10-09
+
+### Fixed
+
+- Bump Chart appVersion to v1.4.2
+- Fix circleci config.
+
+## [0.6.0] - 2024-10-08
+
+### Added
+
+- Add PodLogs as helm chart template.
+
+### Changed
+
+- Upgrade Alloy upstream chart from 0.7.0 to 0.9.1
+  - This bumps the version of Alloy from 1.3.1 to 1.4.2
+  - Alloy Breaking changes
+    - Some debug metrics for otelcol components have changed.
+    - [otelcol.processor.transform] The functions convert_sum_to_gauge and convert_gauge_to_sum must now be used in the metric context rather than in the datapoint context.
+    - Upgrade Beyla from 1.7.0 to 1.8.2. A complete list of changes can be found on the Beyla releases page: https://github.com/grafana/beyla/releases.
+    - See [Alloy v1.4.0 release notes](https://github.com/grafana/alloy/releases/tag/v1.4.0)
+  - Helm chart changes, see [Alloy Helm chart v0.9.0 CHANGELOG](https://github.com/grafana/alloy/blob/helm-chart/0.9.0/operations/helm/charts/alloy/CHANGELOG.md)
+
+### Fixed
+
+- Fix CiliumNetworkPolicy to allow outgoing traffic to other nodes when running Alloy in clustering mode
+
+## [0.5.2] - 2024-09-17
+
 ### Added
 
 - Add helm chart templating test in ci pipeline.
 - Add tests with ats in ci pipeline.
-- Add e2e tests.
+- Push alloy as a gateway component in collections.
 
 ## [0.5.1] - 2024-09-03
 
@@ -81,7 +138,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - changed: `app.giantswarm.io` label group was changed to `application.giantswarm.io`
 
-[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/giantswarm/alloy-app/compare/v0.8.0...v0.9.0
+[0.8.0]: https://github.com/giantswarm/alloy-app/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/giantswarm/alloy-app/compare/v0.6.1...v0.7.0
+[0.6.1]: https://github.com/giantswarm/alloy-app/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/giantswarm/alloy-app/compare/v0.5.2...v0.6.0
+[0.5.2]: https://github.com/giantswarm/alloy-app/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/giantswarm/alloy-app/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/giantswarm/alloy-app/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/giantswarm/alloy-app/compare/v0.4.0...v0.4.1

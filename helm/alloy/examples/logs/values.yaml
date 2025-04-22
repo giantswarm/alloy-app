@@ -55,6 +55,7 @@ alloy:
       runAsUser: 0
       runAsGroup: 0
       runAsNonRoot: false
+      readOnlyRootFilesystem: false
   controller:
     type: daemonset
     tolerations:

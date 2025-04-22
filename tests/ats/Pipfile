@@ -9,4 +9,4 @@ pytest = ">=6.2.5"
 pykube-ng = ">=22.1.0"
 
 [requires]
-python_version = "3.9"
+python_version = "3.12"

@@ -37,6 +37,13 @@ spec:
         protocol: ANY
       - port: "443"
         protocol: ANY
+  - toEndpoints:
+    - matchLabels:
+        {{- include "alloy.selectorLabels" . | nindent 8 }}
+    toPorts:
+    - ports:
+      - port: "12345"
+        protocol: TCP
   {{- end }}
   endpointSelector:
     matchLabels:
