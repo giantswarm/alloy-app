@@ -47,6 +47,7 @@ func TestConfig(t *testing.T) {
 
 	suite.New(appConfig).
 		WithInstallNamespace(installNamespace).
+		WithInstallName("alloy-logs").
 		WithIsUpgrade(isUpgrade).
 		WithValuesFile("./values.yaml").
 		InAppBundle("observability-bundle").
