@@ -27,7 +27,6 @@ func TestConfig(t *testing.T) {
 	var installNamespace = "kube-system"
 
 	appConfig := config.MustLoad("../../config.yaml")
-	appConfig.AppName = "alloy-logs"
 
 	// Ensure we use an actual semver version instead of "latest"
 	if os.Getenv("E2E_APP_VERSION") == "latest" {
