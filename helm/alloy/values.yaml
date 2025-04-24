@@ -59,7 +59,7 @@ alloy:
 
   configReloader:
     image:
-      repository: giantswarm/configmap-reload
+      repository: giantswarm/prometheus-config-reloader
     securityContext:
       allowPrivilegeEscalation: false
       capabilities:
