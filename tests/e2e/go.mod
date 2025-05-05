@@ -2,7 +2,7 @@ module e2e
 
 go 1.23.1
 
-toolchain go1.23.2
+toolchain go1.24.2
 
 require (
 	github.com/giantswarm/apptest-framework v1.13.0
