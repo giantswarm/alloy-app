@@ -75,7 +75,7 @@ func TestConfig(t *testing.T) {
 
 		}).
 		Tests(func() {
-			It("should run as a daemonset", func() {
+			It("should run an alloy-logs daemonset", func() {
 				wcClient, err := state.GetFramework().WC(state.GetCluster().Name)
 				Expect(err).NotTo(HaveOccurred())
 
