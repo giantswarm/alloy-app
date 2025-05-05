@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Add e2e tests.
 - Upgrade Alloy upstream chart from 0.12.1 to 1.0.2
   - This bumps the version of Alloy from 1.7.1 to 1.8.2
 
