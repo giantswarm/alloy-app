@@ -80,7 +80,7 @@ func TestConfig(t *testing.T) {
 				Expect(err).NotTo(HaveOccurred())
 
 				Eventually(func() error {
-					logger.Log("Checking if daemonset does exists in the workload cluster")
+					logger.Log("Checking if alloy-logs daemonset does exists in the workload cluster")
 					var ds appsv1.DaemonSet
 					err := wcClient.Get(state.GetContext(), types.NamespacedName{Namespace: installNamespace, Name: "alloy-logs"}, &ds)
 					if err != nil {
