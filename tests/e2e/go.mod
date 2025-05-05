@@ -2,7 +2,7 @@ module e2e
 
 go 1.23.1
 
-toolchain go1.23.2
+toolchain go1.24.2
 
 require (
 	github.com/giantswarm/apptest-framework v1.13.0
@@ -188,6 +188,6 @@ require (
 )
 
 replace (
-	github.com/alessio/shellescape => al.essio.dev/pkg/shellescape v1.4.2
+	github.com/alessio/shellescape => al.essio.dev/pkg/shellescape v1.6.0
 	github.com/imdario/mergo => github.com/imdario/mergo v0.3.16
 )
