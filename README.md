@@ -60,6 +60,23 @@ See examples in [helm/alloy/examples](helm/alloy/examples) for how to configure 
 
 See our [full reference on how to configure apps](https://docs.giantswarm.io/getting-started/app-platform/app-configuration/) for more details.
 
+## Troubleshooting
+
+Alloy provides a web interface to help you debug configuration issues.
+
+To access it, port-forward port `12345` for the alloy pod you want to debug:
+```
+kubectl -n kube-system port-forward alloy-metrics-0 12345
+```
+
+Then open your web browser and visit `http://localhost:12345`
+
+For instance, this is the place where you can check for your `servicemonitor` scrape targets by clicking `view` for a `prometheus.operator.servicemonitors` component, and see:
+- whether the `servicemonitor` resource was properly taken
+- which pods it detects
+- which labels it adds
+- how long does scrapes take
+
 ## Credit
 
 - https://github.com/grafana/alloy
