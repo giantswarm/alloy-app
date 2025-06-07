@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade Alloy upstream chart from 1.1.0 to 1.1.1
+  - This bumps the version of Alloy from 1.9.0 to 1.9.1
+
 ## [0.11.0] - 2025-06-02
 
 ### Changed
