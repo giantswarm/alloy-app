@@ -1,19 +1,15 @@
 package logs
 
 import (
-	"os"
-	"strings"
 	"testing"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/giantswarm/apptest-framework/pkg/config"
 	"github.com/giantswarm/apptest-framework/pkg/state"
 	"github.com/giantswarm/apptest-framework/pkg/suite"
 
-	"github.com/giantswarm/clustertest/pkg/application"
 	"github.com/giantswarm/clustertest/pkg/logger"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -26,25 +22,7 @@ const (
 func TestConfig(t *testing.T) {
 	var installNamespace = "kube-system"
 
-	appConfig := config.MustLoad("../../config.yaml")
-
-	// Ensure we use an actual semver version instead of "latest"
-	if os.Getenv("E2E_APP_VERSION") == "latest" {
-		latestVersion, err := application.GetLatestAppVersion(appConfig.RepoName)
-		if err != nil {
-			t.Fatal(err)
-		}
-		latestVersion = strings.TrimPrefix(latestVersion, "v")
-		logger.Log("Overriding 'latest' version to '%s'", latestVersion)
-		os.Setenv("E2E_APP_VERSION", latestVersion)
-
-		defer (func() {
-			// Set the env back to latest so it doesn't conflict with other suites
-			os.Setenv("E2E_APP_VERSION", "latest")
-		})()
-	}
-
-	suite.New(appConfig).
+	suite.New().
 		WithInstallNamespace(installNamespace).
 		WithInstallName("alloy-logs").
 		WithIsUpgrade(isUpgrade).
