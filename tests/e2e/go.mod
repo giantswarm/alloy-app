@@ -8,7 +8,7 @@ require (
 	github.com/giantswarm/apptest-framework v1.14.0
 	github.com/giantswarm/clustertest v1.37.0
 	github.com/onsi/ginkgo/v2 v2.23.4
-	github.com/onsi/gomega v1.37.0
+	github.com/onsi/gomega v1.38.0
 	k8s.io/api v0.33.3
 	k8s.io/apimachinery v0.33.3
 )
