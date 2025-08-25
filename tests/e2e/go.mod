@@ -1,6 +1,6 @@
 module e2e
 
-go 1.24.5
+go 1.24.6
 
 require (
 	github.com/giantswarm/apptest-framework v1.15.2
@@ -44,7 +44,7 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
 	github.com/giantswarm/apiextensions-application v0.6.2 // indirect
-	github.com/giantswarm/cluster-standup-teardown v1.35.0 // indirect
+	github.com/giantswarm/cluster-standup-teardown v1.35.2 // indirect
 	github.com/giantswarm/k8smetadata v0.25.0 // indirect
 	github.com/giantswarm/kubectl-gs/v2 v2.57.0 // indirect
 	github.com/giantswarm/microerror v0.4.1 // indirect
@@ -155,7 +155,7 @@ require (
 	k8s.io/kubectl v0.33.4 // indirect
 	k8s.io/utils v0.0.0-20250820121507-0af2bda4dd1d // indirect
 	oras.land/oras-go/v2 v2.6.0 // indirect
-	sigs.k8s.io/cluster-api v1.11.0 // indirect
+	sigs.k8s.io/cluster-api v1.10.5 // indirect
 	sigs.k8s.io/controller-runtime v0.21.0 // indirect
 	sigs.k8s.io/e2e-framework v0.6.0 // indirect
 	sigs.k8s.io/gateway-api v1.3.0 // indirect
@@ -165,9 +165,4 @@ require (
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.7.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
-)
-
-replace (
-	github.com/alessio/shellescape => al.essio.dev/pkg/shellescape v1.6.0
-	github.com/imdario/mergo => github.com/imdario/mergo v0.3.16
 )
