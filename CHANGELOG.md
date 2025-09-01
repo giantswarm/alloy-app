@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2025-09-01
+
 ### Changed
 
 - Update Kyverno PolicyException from `kyverno.io/v2beta1` to `kyverno.io/v2`
@@ -166,7 +168,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - changed: `app.giantswarm.io` label group was changed to `application.giantswarm.io`
 
-[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.12.1...HEAD
+[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/giantswarm/alloy-app/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/giantswarm/alloy-app/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/giantswarm/alloy-app/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/giantswarm/alloy-app/compare/v0.10.0...v0.11.0
