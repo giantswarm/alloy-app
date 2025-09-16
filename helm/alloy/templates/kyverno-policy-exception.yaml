@@ -27,7 +27,7 @@ spec:
 {{- end }}
   {{- if .Values.kyvernoPolicyExceptions.exceptions }}
   {{- toYaml .Values.kyvernoPolicyExceptions.exceptons | nindent 2 }}
-  {{- else }}
+  {{- end }}
   match:
     any:
     - resources:
