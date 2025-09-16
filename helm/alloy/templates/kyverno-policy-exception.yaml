@@ -25,6 +25,9 @@ spec:
     - run-as-non-root-user
     - autogen-run-as-non-root-user
 {{- end }}
+  {{- if .Values.kyvernoPolicyExceptions.exceptions }}
+  {{- toYaml .Values.kyvernoPolicyExceptions.exceptons | nindent 2 }}
+  {{- else }}
   match:
     any:
     - resources:
