@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.15.0] - 2025-10-09
 
+### Added
+
+- Add configurable Kyverno policy expections in order to be able to set required capabilities for Beyla.
+
 ## [0.14.0] - 2025-10-01
 
 ### Changed
