@@ -1,10 +1,10 @@
 module e2e
 
-go 1.24.6
+go 1.25.3
 
 require (
-	github.com/giantswarm/apptest-framework v1.16.1
-	github.com/giantswarm/clustertest v1.41.0
+	github.com/giantswarm/apptest-framework/v2 v2.0.1
+	github.com/giantswarm/clustertest/v2 v2.0.3
 	github.com/onsi/ginkgo/v2 v2.26.0
 	github.com/onsi/gomega v1.38.2
 	k8s.io/api v0.34.1
