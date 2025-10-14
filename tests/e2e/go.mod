@@ -1,6 +1,6 @@
 module e2e
 
-go 1.24.6
+go 1.25.3
 
 require (
 	github.com/giantswarm/apptest-framework/v2 v2.0.1
