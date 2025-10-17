@@ -106,12 +106,12 @@ github.com/fxamacker/cbor/v2 v2.9.0 h1:NpKPmjDBgUfBms6tr6JZkTHtfFGcMKsw3eGcmD/sa
 github.com/fxamacker/cbor/v2 v2.9.0/go.mod h1:vM4b+DJCtHn+zz7h3FFp/hDAI9WNWCsZj23V5ytsSxQ=
 github.com/giantswarm/apiextensions-application v0.6.2 h1:XL86OrpprWl5Wp38EUvUXt3ztTo25+V63oDVlFwDpNg=
 github.com/giantswarm/apiextensions-application v0.6.2/go.mod h1:8ylqSmDSzFblCppRQTFo8v9s/F6MX6RTusVVoDDfWso=
-github.com/giantswarm/apptest-framework v1.16.1 h1:dvG0zxjVgbIaKSOfW1puOdC2O/GTI/0xBbXPVHK31z0=
-github.com/giantswarm/apptest-framework v1.16.1/go.mod h1:A7dGNeYRR6VOey7MxtDEE9A3kaJFv2k9Zkig3/LM+Sk=
-github.com/giantswarm/cluster-standup-teardown v1.36.0 h1:ALLjx9jhxg0P06OPPn+m/YhSRvChrv7sjcRchL6KX2U=
-github.com/giantswarm/cluster-standup-teardown v1.36.0/go.mod h1:nZF4q9ZQswBcmvqbYTTQ1Oz2+ArX3Upls/qhyybrk0Y=
-github.com/giantswarm/clustertest v1.41.0 h1:B2j56srrALx42mRxHiKNsA3vASHuloHS5AKlMLKOVgs=
-github.com/giantswarm/clustertest v1.41.0/go.mod h1:mu3Wh9SGvPn9Xdy5X9ZHuTVdpoNaS9EEdrWYAyK2sBM=
+github.com/giantswarm/apptest-framework/v2 v2.0.1 h1:zRPf+KaTxRX/7aqkRifLJmNO5igBKVlpFfW09D8uuGw=
+github.com/giantswarm/apptest-framework/v2 v2.0.1/go.mod h1:pmcVfiqb3QRANlK1Ml+Qg/J3foXHlJcEthB1LaWEw5E=
+github.com/giantswarm/cluster-standup-teardown/v2 v2.0.3 h1:7B+UqYFFNecL4uELu8Ve/Ydq7QgNy2odZNzE019xOi8=
+github.com/giantswarm/cluster-standup-teardown/v2 v2.0.3/go.mod h1:3alOM1Ji4xN2sPOg1aYUHK5HJQCP6TTOUW6RVvF8d6I=
+github.com/giantswarm/clustertest/v2 v2.1.1 h1:zY/umWiAAM/wPg79h3IiDgmLcvjdEMbqIM3/glzuC9E=
+github.com/giantswarm/clustertest/v2 v2.1.1/go.mod h1:bjvMMpTqtSLhV8tETXw/ANxlUqFdqK4tXUIc2rp6MXE=
 github.com/giantswarm/k8smetadata v0.25.0 h1:6mKmmm4xHPuBvxDMAkIhU5oj6KJkJSaR2s5esIsnHs4=
 github.com/giantswarm/k8smetadata v0.25.0/go.mod h1:QiQAyaZnwco1U0lENLF0Kp4bSN4dIPwIlHWEvUo3ES8=
 github.com/giantswarm/kubectl-gs/v2 v2.57.0 h1:IMmho55Qq+WE+frJXcTBhx19+J54xwu/j4+pGU5YecA=
@@ -191,8 +191,6 @@ github.com/google/gnostic-models v0.7.0/go.mod h1:whL5G0m6dmc5cPxKc5bdKdEN3UjI7O
 github.com/google/go-cmp v0.5.2/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
 github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
-github.com/google/go-github/v75 v75.0.0 h1:k7q8Bvg+W5KxRl9Tjq16a9XEgVY1pwuiG5sIL7435Ic=
-github.com/google/go-github/v75 v75.0.0/go.mod h1:H3LUJEA1TCrzuUqtdAQniBNwuKiQIqdGKgBo1/M/uqI=
 github.com/google/go-github/v76 v76.0.0 h1:MCa9VQn+VG5GG7Y7BAkBvSRUN3o+QpaEOuZwFPJmdFA=
 github.com/google/go-github/v76 v76.0.0/go.mod h1:38+d/8pYDO4fBLYfBhXF5EKO0wA3UkXBjfmQapFsNCQ=
 github.com/google/go-querystring v1.1.0 h1:AnCroh3fv4ZBgVIf1Iwtovgjaw/GiKJo8M8yD/fhyJ8=
@@ -489,6 +487,7 @@ golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8T
 golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 gomodules.xyz/jsonpatch/v2 v2.5.0 h1:JELs8RLM12qJGXU4u/TO3V25KW8GreMKl9pdkk14RM0=
 gomodules.xyz/jsonpatch/v2 v2.5.0/go.mod h1:AH3dM2RI6uoBZxn3LVrfvJ3E0/9dG4cSrbuBJT4moAY=
+google.golang.org/genproto v0.0.0-20240213162025-012b6fc9bca9 h1:9+tzLLstTlPTRyJTh+ah5wIMsBW5c4tQwGTN3thOW9Y=
 google.golang.org/genproto/googleapis/api v0.0.0-20251007200510-49b9836ed3ff h1:8Zg5TdmcbU8A7CXGjGXF1Slqu/nIFCRaR3S5gT2plIA=
 google.golang.org/genproto/googleapis/api v0.0.0-20251007200510-49b9836ed3ff/go.mod h1:dbWfpVPvW/RqafStmRWBUpMN14puDezDMHxNYiRfQu0=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20251007200510-49b9836ed3ff h1:A90eA31Wq6HOMIQlLfzFwzqGKBTuaVztYu/g8sn+8Zc=
