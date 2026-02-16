@@ -1,0 +1,4 @@
+# Test chart renders with DaemonSet controller (alloy-logs topology)
+alloy:
+  controller:
+    type: daemonset

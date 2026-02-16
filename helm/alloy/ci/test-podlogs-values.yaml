@@ -1,0 +1,8 @@
+# Test chart renders with PodLogs resources
+podLogs:
+- name: test-app-logs
+  namespace: default
+  spec:
+    selector:
+      matchLabels:
+        app: test-app
