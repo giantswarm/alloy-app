@@ -1,5 +1,7 @@
 annotations:
   io.giantswarm.application.team: atlas
+  io.giantswarm.application.audience: all
+  io.giantswarm.application.managed: "true"
 apiVersion: v2
 appVersion: v1.12.0
 dependencies:
