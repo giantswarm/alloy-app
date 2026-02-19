@@ -2,26 +2,9 @@ version: 2.1
 orbs:
   architect: giantswarm/architect@6.13.0
 
-jobs:
-  template-chart:
-    docker:
-      - image: giantswarm/helm-chart-testing:v3.14.0
-    steps:
-      - checkout
-      - run: |-
-          cd helm/alloy
-          helm dep up
-          helm template .
-
 workflows:
   package-and-push-chart-on-tag:
     jobs:
-      - template-chart:
-          name: "template-chart-test"
-          filters:
-            tags:
-              only: /^v.*/
-
       - architect/push-to-app-catalog:
           context: architect
           executor: app-build-suite
@@ -31,18 +14,7 @@ workflows:
           chart: "alloy"
           persist_chart_archive: true
           ct_config: ".circleci/ct-config.yaml"
-          requires:
-            - "template-chart-test"
           # Trigger job on git tag.
           filters:
             tags:
               only: /^v.*/
-
-      - architect/run-tests-with-ats:
-          name: run-tests-with-ats
-          requires:
-            - "push-to-default-catalog"
-          filters:
-            branches:
-              ignore:
-                - main

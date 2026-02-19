@@ -1,0 +1,4 @@
+# Test chart renders with StatefulSet controller (alloy-metrics topology)
+alloy:
+  controller:
+    type: statefulset
