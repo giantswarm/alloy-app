@@ -7,12 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade Alloy upstream chart from 1.5.0 to 1.6.0 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md#160-2026-02-05))
+  - This bumps the version of Alloy from 1.12.0 to 1.13.0 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/CHANGELOG.md#1130-2026-02-05))
+
 ## [0.16.1] - 2026-02-12
 
 ### Changed
 
 - Change team annotation in `Chart.yaml` to OpenContainers format (`io.giantswarm.application.team`).
-
 
 ## [0.16.0] - 2025-12-12
 
