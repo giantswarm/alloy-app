@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade Alloy upstream chart from 1.6.0 to 1.6.1 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md#161-2026-03-02))
+  - This bumps the version of Alloy from 1.13.0 to 1.13.2 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/CHANGELOG.md#1132-2026-02-23))
+
 ## [0.17.0] - 2026-02-20
 
 ### Changed
