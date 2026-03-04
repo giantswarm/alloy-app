@@ -1,0 +1,5 @@
+alloy:
+  crds:
+    create: false
+  controller:
+    type: daemonset
