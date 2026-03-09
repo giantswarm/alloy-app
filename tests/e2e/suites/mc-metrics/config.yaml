@@ -1,6 +1,0 @@
-appName: alloy
-repoName: alloy-app
-appCatalog: default
-providers:
-- capa
-isMCTest: true
