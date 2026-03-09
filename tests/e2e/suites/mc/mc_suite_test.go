@@ -25,6 +25,9 @@ func TestMC(t *testing.T) {
 		WithInstallNamespace(installNamespace).
 		WithIsUpgrade(isUpgrade).
 		WithValuesFile("./values.yaml").
+		// WithInstallName is intentionally omitted: this suite installs the
+		// observability-bundle as a whole and checks all three alloy instances
+		// (alloy-metrics, alloy-logs, alloy-events) within a single cluster.
 		InAppBundle("observability-bundle").
 		AfterClusterReady(func() {
 			It("should connect to the management cluster", func() {
