@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add E2E test suites for all alloy topologies (metrics, logs, events) on both MC and WC using `apptest-framework`.
+- Add E2E test suites for all alloy topologies (metrics, logs, events) on WC using `apptest-framework`.
 - Add Helm CI test values for controller types, network policies, Kyverno, secrets, and PodLogs.
 
 ### Removed
