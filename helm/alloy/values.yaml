@@ -16,6 +16,10 @@ kyvernoPolicyExceptions:
   namespace: giantswarm
   exceptions: []
 
+crds:
+  # -- Whether to install CRDs for monitoring.
+  create: false
+
 alloy:
   # You can make the whole chart ineffective by setting enabled to "false"
   enabled: true

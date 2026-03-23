@@ -25,7 +25,7 @@ workflows:
       - architect/push-to-app-catalog:
           context: architect
           executor: app-build-suite
-          name: push-to-default-catalog
+          name: push-alloy-to-default-catalog
           app_catalog: default-catalog
           app_catalog_test: default-test-catalog
           chart: "alloy"
@@ -37,11 +37,27 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+      - architect/push-to-app-catalog:
+          context: architect
+          executor: app-build-suite
+          name: push-podlogs-to-default-catalog
+          app_catalog: default-catalog
+          app_catalog_test: default-test-catalog
+          chart: "alloy-podlogs-crds"
+          persist_chart_archive: true
+          ct_config: ".circleci/ct-config.yaml"
+          explicit_allow_chart_name_mismatch: true
+          requires:
+            - "template-chart-test"
+          # Trigger job on git tag.
+          filters:
+            tags:
+              only: /^v.*/
 
       - architect/run-tests-with-ats:
           name: run-tests-with-ats
           requires:
-            - "push-to-default-catalog"
+            - "push-alloy-to-default-catalog"
           filters:
             branches:
               ignore:
