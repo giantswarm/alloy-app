@@ -1,0 +1,20 @@
+# Test chart renders with custom Cilium network policy rules
+networkPolicy:
+  flavor: cilium
+  cilium:
+    egress:
+    - toEndpoints:
+      - matchLabels:
+          k8s:io.kubernetes.pod.namespace: monitoring
+      toPorts:
+      - ports:
+        - port: "9090"
+          protocol: TCP
+    ingress:
+    - fromEndpoints:
+      - matchLabels:
+          k8s:io.kubernetes.pod.namespace: monitoring
+      toPorts:
+      - ports:
+        - port: "12345"
+          protocol: TCP
