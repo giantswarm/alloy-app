@@ -4,7 +4,7 @@ go 1.25.7
 
 require (
 	github.com/giantswarm/apptest-framework/v4 v4.0.0
-	github.com/giantswarm/clustertest/v4 v4.0.0
+	github.com/giantswarm/clustertest/v4 v4.0.1
 	github.com/onsi/ginkgo/v2 v2.28.1
 	github.com/onsi/gomega v1.39.1
 	k8s.io/api v0.35.3
@@ -51,7 +51,7 @@ require (
 	github.com/giantswarm/microerror v0.4.1 // indirect
 	github.com/giantswarm/organization-operator v1.6.4 // indirect
 	github.com/giantswarm/release-operator/v4 v4.2.1 // indirect
-	github.com/giantswarm/releases/sdk v0.11.0 // indirect
+	github.com/giantswarm/releases/sdk v0.12.0 // indirect
 	github.com/go-errors/errors v1.5.1 // indirect
 	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
@@ -76,7 +76,6 @@ require (
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/gnostic-models v0.7.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/go-github/v76 v76.0.0 // indirect
 	github.com/google/go-github/v84 v84.0.0 // indirect
 	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/google/pprof v0.0.0-20260302011040-a15ffb7f9dcc // indirect
@@ -156,13 +155,13 @@ require (
 	helm.sh/helm/v3 v3.20.1 // indirect
 	k8s.io/apiextensions-apiserver v0.35.2 // indirect
 	k8s.io/apiserver v0.35.2 // indirect
-	k8s.io/cli-runtime v0.35.2 // indirect
-	k8s.io/client-go v0.35.2 // indirect
+	k8s.io/cli-runtime v0.35.3 // indirect
+	k8s.io/client-go v0.35.3 // indirect
 	k8s.io/cluster-bootstrap v0.35.2 // indirect
-	k8s.io/component-base v0.35.2 // indirect
+	k8s.io/component-base v0.35.3 // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20260304202019-5b3e3fdb0acf // indirect
-	k8s.io/kubectl v0.35.2 // indirect
+	k8s.io/kubectl v0.35.3 // indirect
 	k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2 // indirect
 	oras.land/oras-go/v2 v2.6.0 // indirect
 	sigs.k8s.io/cluster-api v1.12.3 // indirect
