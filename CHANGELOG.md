@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add E2E test suites for all alloy topologies (metrics, logs, events) on WC using `apptest-framework`.
 - Add Helm CI test values for controller types, network policies, Kyverno, secrets, and PodLogs.
 
+### Changed
+
+- Upgrade Alloy upstream chart from 1.6.1 to 1.6.2 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md#162-2026-03-05))
+  - This bumps the version of Alloy from 1.13.2 to 1.14.0 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/CHANGELOG.md#1140-2026-03-06))
+
 ### Removed
 
 - Remove ATS (Python/pytest) test infrastructure in favour of `apptest-framework`.
