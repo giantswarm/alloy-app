@@ -1,0 +1,3 @@
+# Test chart renders with standard Kubernetes NetworkPolicy instead of Cilium
+networkPolicy:
+  flavor: kubernetes

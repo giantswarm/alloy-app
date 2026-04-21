@@ -1,0 +1,4 @@
+# Test chart renders with Deployment controller (alloy-events topology)
+alloy:
+  controller:
+    type: deployment

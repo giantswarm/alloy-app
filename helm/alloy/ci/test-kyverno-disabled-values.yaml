@@ -1,0 +1,3 @@
+# Test chart renders with Kyverno policy exceptions disabled
+kyvernoPolicyExceptions:
+  enabled: false
