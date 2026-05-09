@@ -110,10 +110,10 @@ github.com/fxamacker/cbor/v2 v2.9.2 h1:X4Ksno9+x3cz0TZv69ec1hxP/+tymuR8PXQJyDwfh
 github.com/fxamacker/cbor/v2 v2.9.2/go.mod h1:vM4b+DJCtHn+zz7h3FFp/hDAI9WNWCsZj23V5ytsSxQ=
 github.com/giantswarm/apiextensions-application v0.6.2 h1:XL86OrpprWl5Wp38EUvUXt3ztTo25+V63oDVlFwDpNg=
 github.com/giantswarm/apiextensions-application v0.6.2/go.mod h1:8ylqSmDSzFblCppRQTFo8v9s/F6MX6RTusVVoDDfWso=
-github.com/giantswarm/apptest-framework/v5 v5.0.0 h1:SVC9kQhkD6TlsjA7Rc4SeJXWfFfsFAXerR0g7RJnRt4=
-github.com/giantswarm/apptest-framework/v5 v5.0.0/go.mod h1:nRbfCcctLivdzrnf7dyYXVzqRQWZAF64NWNE+uPfycY=
-github.com/giantswarm/cluster-standup-teardown/v6 v6.0.0 h1:WDlnfe++JnAqhDV7jK18zpAwr7iUNYVhdrqmUJDbbmE=
-github.com/giantswarm/cluster-standup-teardown/v6 v6.0.0/go.mod h1:gjxnidphPEV2QOy+Pnb0E2Oaoz5y+CmB1La1+mb1+Jg=
+github.com/giantswarm/apptest-framework/v5 v5.0.1 h1:zYQoh7ugEXrKZWS7JNc0OpE6N68NLlxLdoU3cAcIzds=
+github.com/giantswarm/apptest-framework/v5 v5.0.1/go.mod h1:t1QjcAXN00w9Q3qhnE/r+5qbZ042VQKdnKIqTt28x5I=
+github.com/giantswarm/cluster-standup-teardown/v6 v6.0.1 h1:ElldQMFe02zlSHxbV1n2B+9xlwhR8cEKGe1XDIWu28w=
+github.com/giantswarm/cluster-standup-teardown/v6 v6.0.1/go.mod h1:ZWF1n73ButDUKW6uH0+GI4/iYOu4wlVonr0PiuUgt7o=
 github.com/giantswarm/clustertest/v5 v5.0.1 h1:e3IcX5YhhcUzlaV4bTwf7kLcG8VEieFDsaNgfsJrfVs=
 github.com/giantswarm/clustertest/v5 v5.0.1/go.mod h1:YhapiZdgY2CVAzcWi6HFud2rngd+TcbKy73fBGqb4zw=
 github.com/giantswarm/k8smetadata v0.26.0 h1:2TLymlfjYLyioRRimbm0CxRzEr5lMivsuEiE32+JYxQ=
@@ -206,8 +206,8 @@ github.com/google/go-querystring v1.2.0/go.mod h1:8IFJqpSRITyJ8QhQ13bmbeMBDfmeEJ
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
 github.com/google/gofuzz v1.2.0 h1:xRy4A+RhZaiKjJ1bPfwQ8sedCA+YS2YcCHW6ec7JMi0=
 github.com/google/gofuzz v1.2.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
-github.com/google/pprof v0.0.0-20260402051712-545e8a4df936 h1:EwtI+Al+DeppwYX2oXJCETMO23COyaKGP6fHVpkpWpg=
-github.com/google/pprof v0.0.0-20260402051712-545e8a4df936/go.mod h1:MxpfABSjhmINe3F1It9d+8exIHFvUqtLIRCdOGNXqiI=
+github.com/google/pprof v0.0.0-20260507013755-92041b743c96 h1:YDDnaZ9afWajDboPMt9Vikqca/yWAX7KAxVzb4lJU1M=
+github.com/google/pprof v0.0.0-20260507013755-92041b743c96/go.mod h1:MxpfABSjhmINe3F1It9d+8exIHFvUqtLIRCdOGNXqiI=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/gorilla/handlers v1.5.2 h1:cLTUSsNkgcwhgRqvCNmdbRWG0A3N4F+M2nWKdScwyEE=
