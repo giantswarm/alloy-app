@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `alloy-podlogs-crds` chart to manage the PodLogs CRD independently of the alloy chart's `crds` subchart.
 
+## [0.19.0] - 2026-05-22
+
+### Changed
+
+- Upgrade Alloy upstream chart from 1.7.0 to 1.8.1 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md#181-2026-05-05))
+  - This bumps the version of Alloy from 1.15.0 to 1.16.1 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/CHANGELOG.md#1161-2026-05-05))
+
 ## [0.18.0] - 2026-04-02
 
 ### Added
@@ -235,7 +242,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - changed: `app.giantswarm.io` label group was changed to `application.giantswarm.io`
 
-[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.18.0...HEAD
+[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.19.0...HEAD
+[0.19.0]: https://github.com/giantswarm/alloy-app/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/giantswarm/alloy-app/compare/v0.17.1...v0.18.0
 [0.17.1]: https://github.com/giantswarm/alloy-app/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/giantswarm/alloy-app/compare/v0.16.1...v0.17.0
