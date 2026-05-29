@@ -4,7 +4,7 @@ go 1.26.3
 
 require (
 	github.com/giantswarm/apptest-framework/v5 v5.0.1
-	github.com/giantswarm/clustertest/v5 v5.1.0
+	github.com/giantswarm/clustertest/v5 v5.2.0
 	github.com/onsi/ginkgo/v2 v2.29.0
 	github.com/onsi/gomega v1.41.0
 	k8s.io/api v0.36.1
@@ -42,7 +42,7 @@ require (
 	github.com/fluxcd/helm-controller/api v1.5.5 // indirect
 	github.com/fluxcd/pkg/apis/acl v0.10.0 // indirect
 	github.com/fluxcd/pkg/apis/kustomize v1.18.0 // indirect
-	github.com/fluxcd/pkg/apis/meta v1.27.0 // indirect
+	github.com/fluxcd/pkg/apis/meta v1.28.0 // indirect
 	github.com/fluxcd/source-controller/api v1.8.5 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.2 // indirect
@@ -79,7 +79,7 @@ require (
 	github.com/google/gnostic-models v0.7.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-github/v84 v84.0.0 // indirect
-	github.com/google/go-github/v87 v87.0.0 // indirect
+	github.com/google/go-github/v88 v88.0.0 // indirect
 	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/google/pprof v0.0.0-20260507013755-92041b743c96 // indirect
 	github.com/google/uuid v1.6.0 // indirect
