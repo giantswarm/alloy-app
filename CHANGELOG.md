@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `alloy-podlogs-crds` chart to manage the PodLogs CRD independently of the alloy chart's `crds` subchart.
+
 ## [0.19.0] - 2026-05-22
 
 ### Changed

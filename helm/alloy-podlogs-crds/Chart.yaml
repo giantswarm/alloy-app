@@ -1,0 +1,14 @@
+annotations:
+  io.giantswarm.application.team: atlas
+apiVersion: v2
+appVersion: v1.13.2
+description: CRDs for Grafana Alloy PodLogs
+home: https://github.com/giantswarm/alloy-app
+icon: https://s.giantswarm.io/app-icons/grafana-alloy/1/light.png
+maintainers:
+  - name: giantswarm/team-atlas
+    email: team-atlas@giantswarm.io
+name: alloy-podlogs-crds
+sources:
+  - https://github.com/grafana/alloy/tree/main/operations/helm/charts/alloy/charts/crds
+version: 0.1.0
