@@ -25,9 +25,6 @@ spec:
         protocol: ANY
       - port: "1053"
         protocol: ANY
-      rules:
-        dns:
-        - matchPattern: '*'
   - toEndpoints:
     - matchLabels:
         app.kubernetes.io/name: ingress-nginx
