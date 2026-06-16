@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Fix ABS config to not override AppVersion in Chart.yaml
+
 ### Removed
 
 - Remove redundant L7 rule from the CiliumNetworkPolicy. The removed rule allowed DNS queries to any DNS domain so removing it has no effect.
