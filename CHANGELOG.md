@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.1] - 2026-06-16
+
 ### Removed
 
 - Remove redundant L7 rule from the CiliumNetworkPolicy. The removed rule allowed DNS queries to any DNS domain so removing it has no effect.
@@ -248,7 +250,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - changed: `app.giantswarm.io` label group was changed to `application.giantswarm.io`
 
-[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.20.0...HEAD
+[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.20.1...HEAD
+[0.20.1]: https://github.com/giantswarm/alloy-app/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/giantswarm/alloy-app/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/giantswarm/alloy-app/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/giantswarm/alloy-app/compare/v0.17.1...v0.18.0
