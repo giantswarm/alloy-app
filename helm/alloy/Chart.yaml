@@ -1,7 +1,7 @@
 annotations:
   io.giantswarm.application.team: atlas
 apiVersion: v2
-appVersion: v1.16.1
+appVersion: v1.17.0
 dependencies:
   - name: alloy
     version: 1.10.0
