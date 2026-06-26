@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade Alloy upstream chart from 1.8.2 to 1.10.0 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md#1100-2026-06-12))
+  - This bumps the version of Alloy from 1.16.1 to 1.17.0 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/CHANGELOG.md#1170-2026-06-11)), which includes several CVE fixes and a fix for cluster nodes failing to join when TLS is enabled.
+  - Adds opt-in `controller.autoscaling.horizontal.externalHPA` (externally-managed HPAs, e.g. KEDA) and `service.externalTrafficPolicy` values. Neither is enabled in our defaults.
+
 ## [0.20.1] - 2026-06-16
 
 ### Changed
