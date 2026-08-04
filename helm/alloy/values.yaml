@@ -21,7 +21,10 @@ crds:
   create: false
 
 alloy:
-  # You can make the whole chart ineffective by setting enabled to "false"
+  # Setting this to "false" makes the whole chart render nothing: it disables both the
+  # upstream Alloy chart and all Giant Swarm additions (NetworkPolicy, Kyverno
+  # PolicyException, VerticalPodAutoscaler, PodLogs and the extra env Secret).
+  # No other value needs to be changed.
   enabled: true
 
   alloy:

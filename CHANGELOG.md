@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Setting `alloy.enabled: false` now disables the whole chart on its own and renders nothing. Previously it only dropped the upstream Alloy chart, and the Giant Swarm templates (NetworkPolicy, Kyverno PolicyException, VerticalPodAutoscaler, PodLogs, extra env Secret) failed to render with `no template "alloy.chart" associated with template "gotpl"` unless `networkPolicy.flavor` and `kyvernoPolicyExceptions.enabled` were also overridden.
+
+### Added
+
+- Add a `make test-chart` target and a `test-chart` workflow that render the chart with every `ci/*-values.yaml` file and assert it renders nothing when disabled and all of its objects when enabled. Unlike `ct lint`, these use a current Helm, which is required to catch template rendering errors.
+
 ## [0.21.0] - 2026-06-29
 
 ### Changed

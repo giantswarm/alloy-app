@@ -1,0 +1,5 @@
+# Test chart still renders (as nothing at all) when the whole chart is disabled.
+# `alloy.enabled: false` drops the upstream subchart, including its _helpers.tpl, so any
+# Giant Swarm template that is not gated on it fails to render.
+alloy:
+  enabled: false
