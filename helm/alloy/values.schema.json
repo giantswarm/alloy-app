@@ -201,6 +201,14 @@
                 }
             }
         },
+        "crds": {
+            "type": "object",
+            "properties": {
+                "create": {
+                    "type": "boolean"
+                }
+            }
+        },
         "global": {
             "type": "object",
             "properties": {
@@ -219,6 +227,9 @@
             "properties": {
                 "enabled": {
                     "type": "boolean"
+                },
+                "exceptions": {
+                    "type": "array"
                 },
                 "namespace": {
                     "type": "string"
@@ -243,6 +254,9 @@
                     "type": "string"
                 }
             }
+        },
+        "podLogs": {
+            "type": "array"
         },
         "verticalPodAutoscaler": {
             "type": "object",
