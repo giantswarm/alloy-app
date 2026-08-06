@@ -14,7 +14,6 @@ workflows:
           chart: "alloy"
           persist_chart_archive: true
           override_app_version: false
-          ct_config: ".circleci/ct-config.yaml"
           # Trigger job on git tag.
           filters:
             tags:
@@ -29,7 +28,6 @@ workflows:
           chart: "alloy-podlogs-crds"
           persist_chart_archive: true
           override_app_version: false
-          ct_config: ".circleci/ct-config.yaml"
           explicit_allow_chart_name_mismatch: true
           # Trigger job on git tag.
           filters:
