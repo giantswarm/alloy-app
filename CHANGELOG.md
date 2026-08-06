@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.1] - 2026-08-06
+
 ### Fixed
 
 - Setting `alloy.enabled: false` now disables the whole chart on its own and renders nothing. Previously it only dropped the upstream Alloy chart, and the Giant Swarm templates (NetworkPolicy, Kyverno PolicyException, VerticalPodAutoscaler, PodLogs, extra env Secret) failed to render with `no template "alloy.chart" associated with template "gotpl"` unless `networkPolicy.flavor` and `kyvernoPolicyExceptions.enabled` were also overridden.
@@ -270,7 +272,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - changed: `app.giantswarm.io` label group was changed to `application.giantswarm.io`
 
-[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.21.0...HEAD
+[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.21.1...HEAD
+[0.21.1]: https://github.com/giantswarm/alloy-app/compare/v0.21.0...v0.21.1
 [0.21.0]: https://github.com/giantswarm/alloy-app/compare/v0.20.1...v0.21.0
 [0.20.1]: https://github.com/giantswarm/alloy-app/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/giantswarm/alloy-app/compare/v0.19.0...v0.20.0
