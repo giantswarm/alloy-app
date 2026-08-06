@@ -1,5 +1,5 @@
 {{/* Upstream work being tracked at https://github.com/grafana/alloy/pull/1305 */}}
-{{- if .Capabilities.APIVersions.Has "autoscaling.k8s.io/v1" -}}
+{{/* Difference with upstream: don't check for "has autoscaling", we want helm to error if VPA enabled on clusters not supporting autoscaling (https://github.com/giantswarm/alloy-app/pull/298) */}}
 {{- if and .Values.alloy.enabled .Values.verticalPodAutoscaler.enabled -}}
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
@@ -36,5 +36,4 @@ spec:
     kind: DaemonSet
     {{- end }}
     name: {{ include "alloy.fullname" . }}
-{{- end }}
 {{- end }}

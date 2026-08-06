@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Chart: Install Vertical Pod Autoscaler independent of API availability.
+
 ## [0.21.1] - 2026-08-06
 
 ### Fixed
