@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.2] - 2026-08-06
+
 ### Changed
 
 - Chart: Install Vertical Pod Autoscaler independent of API availability.
@@ -276,7 +278,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - changed: `app.giantswarm.io` label group was changed to `application.giantswarm.io`
 
-[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.21.1...HEAD
+[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.21.2...HEAD
+[0.21.2]: https://github.com/giantswarm/alloy-app/compare/v0.21.1...v0.21.2
 [0.21.1]: https://github.com/giantswarm/alloy-app/compare/v0.21.0...v0.21.1
 [0.21.0]: https://github.com/giantswarm/alloy-app/compare/v0.20.1...v0.21.0
 [0.20.1]: https://github.com/giantswarm/alloy-app/compare/v0.20.0...v0.20.1
