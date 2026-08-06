@@ -1,6 +1,6 @@
-### Upstream work being tracked at https://github.com/grafana/alloy/pull/1305
-{{ if .Capabilities.APIVersions.Has "autoscaling.k8s.io/v1" -}}
-{{- if and .Values.verticalPodAutoscaler.enabled -}}
+{{/* Upstream work being tracked at https://github.com/grafana/alloy/pull/1305 */}}
+{{- if .Capabilities.APIVersions.Has "autoscaling.k8s.io/v1" -}}
+{{- if and .Values.alloy.enabled .Values.verticalPodAutoscaler.enabled -}}
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:

@@ -1,0 +1,22 @@
+name: test-chart
+
+on:
+  pull_request:
+    branches:
+      - main
+  merge_group: {}
+
+permissions: {}
+
+jobs:
+  test-chart:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+      # Renders the chart with every ci/*-values.yaml, and asserts that
+      # `alloy.enabled: false` renders nothing on its own while the chart still renders
+      # all of its objects when enabled. Uses a current helm, unlike `ct lint`.
+      - run: make test-chart
