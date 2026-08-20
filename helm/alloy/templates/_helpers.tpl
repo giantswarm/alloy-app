@@ -1,16 +1,4 @@
 {{/*
-Whether the vCenter receiver applies to this provider.
-Outputs "true" for vSphere and Cloud Director, and an empty string for all other
-providers. Do not output "false": a non-empty string is always truthy in a template.
-Use with: {{- if include "vcenter-receiver.enabled" . }}
-*/}}
-{{- define "vcenter-receiver.enabled" -}}
-{{- if .Values.vcenterReceiver.enabled -}}
-true
-{{- end -}}
-{{- end }}
-
-{{/*
 Common labels
 */}}
 {{- define "alloy.labels" -}}

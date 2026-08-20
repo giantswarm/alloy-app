@@ -1,4 +1,4 @@
-{{- if and .Values.alloy.enabled (include "vcenter-receiver.enabled" .) }}
+{{- if and .Values.alloy.enabled .Values.vcenterReceiver.enabled }}
 {{/* Allows the otelcol.receiver.vcenter component to read the vCenter credentials secret. */}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -12,7 +12,7 @@ rules:
 - apiGroups:
   - ""
   resourceNames:
-  - {{- .Values.vcenterReceiver.secretName | quote }}
+  - {{ .Values.vcenterReceiver.secretName | quote }}
   resources:
   - secrets
   verbs:
