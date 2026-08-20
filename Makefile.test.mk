@@ -29,11 +29,12 @@ CHART_ALL_FEATURES := \
 	--set 'podLogs[0].namespace=test' \
 	--set 'podLogs[0].spec.selector.matchLabels.app=test' \
 	--set 'alloy.alloy.extraSecretEnv[0].name=TEST' \
-	--set 'alloy.alloy.extraSecretEnv[0].value=test'
+	--set 'alloy.alloy.extraSecretEnv[0].value=test' \
+	--set 'vcenterReceiver.enabled=true'
 
 # Objects the chart must produce when it is enabled. Guards against a gate that is
 # accidentally always false, which would pass the disabled check for the wrong reason.
-CHART_EXPECTED_KINDS := CiliumNetworkPolicy PolicyException VerticalPodAutoscaler PodLogs Secret DaemonSet
+CHART_EXPECTED_KINDS := CiliumNetworkPolicy PolicyException VerticalPodAutoscaler PodLogs Secret DaemonSet Role RoleBinding
 
 .PHONY: test-chart test-chart-render test-chart-disabled chart-deps
 
