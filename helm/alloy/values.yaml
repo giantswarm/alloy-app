@@ -1,5 +1,5 @@
 # Available values options are available at https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/values.yaml
-global:
+lobal:
   image:
     registry: gsoci.azurecr.io
 
@@ -130,3 +130,8 @@ verticalPodAutoscaler:
 
 # Creates PodLogs resources along Alloy
 podLogs: []
+
+# Controls the creation of RBAC resources required to run the `vcenter receiver` component.
+vcenterReceiver:
+  enabled: false
+  secretName: "alloy-vcenter-credentials"

@@ -5,7 +5,7 @@ providers. Do not output "false": a non-empty string is always truthy in a templ
 Use with: {{- if include "vcenter-receiver.enabled" . }}
 */}}
 {{- define "vcenter-receiver.enabled" -}}
-{{- if has (.Values.provider | default "") (list "vsphere" "cloud-director") -}}
+{{- if .Values.vcenterReceiver.enabled -}}
 true
 {{- end -}}
 {{- end }}

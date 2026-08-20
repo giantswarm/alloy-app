@@ -1,0 +1,3 @@
+# Test chart renders with default values
+vcenterReceiver:
+  enabled: true

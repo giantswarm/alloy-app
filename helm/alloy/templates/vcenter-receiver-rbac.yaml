@@ -12,7 +12,7 @@ rules:
 - apiGroups:
   - ""
   resourceNames:
-  - alloy-vcenter-credentials
+  - {{- .Values.vcenterReceiver.secretName | quote }}
   resources:
   - secrets
   verbs:

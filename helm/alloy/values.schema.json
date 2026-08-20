@@ -302,6 +302,19 @@
                     "type": "null"
                 }
             }
+        },
+        "vcenterReceiver": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "default": false,
+                    "type": "boolean"
+                },
+                "secretName": {
+                    "default": "alloy-vcenter-credentials",
+                    "type": "string"
+                }
+            }
         }
     }
 }
