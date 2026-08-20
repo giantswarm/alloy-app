@@ -1,5 +1,5 @@
 # Available values options are available at https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/values.yaml
-lobal:
+global:
   image:
     registry: gsoci.azurecr.io
 
