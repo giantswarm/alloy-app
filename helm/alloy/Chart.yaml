@@ -15,5 +15,5 @@ annotations:
 dependencies:
 - repository: https://grafana.github.io/helm-charts
   name: alloy
-  version: 1.10.0
+  version: 1.12.1
   condition: alloy.enabled
