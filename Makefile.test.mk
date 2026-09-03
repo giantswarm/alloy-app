@@ -36,7 +36,7 @@ CHART_ALL_FEATURES := \
 # accidentally always false, which would pass the disabled check for the wrong reason.
 CHART_EXPECTED_KINDS := CiliumNetworkPolicy PolicyException VerticalPodAutoscaler PodLogs Secret DaemonSet Role RoleBinding
 
-.PHONY: test-chart test-chart-render test-chart-disabled chart-deps
+.PHONY: test-chart test-chart-render test-chart-disabled chart-deps test-liveness-probe
 
 test-chart: test-chart-render test-chart-disabled ## Run all chart rendering tests.
 
@@ -65,3 +65,9 @@ test-chart-disabled: chart-deps ## Assert `alloy.enabled=false` renders nothing 
 		printf '%s\n' "$$out" | grep -q "^kind: $$kind$$" || { echo "FAIL: expected 'kind: $$kind' in the enabled render"; exit 1; }; \
 	done
 	@echo "PASS"
+
+##@ Script tests
+
+test-liveness-probe: ## Run scripts/mimir-rules-liveness-probe.sh against a mock Alloy API and Mimir ruler.
+	@echo "====> $@"
+	@tests/liveness-probe/run-tests.sh
