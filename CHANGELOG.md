@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add RBAC to allow `alloy-metrics` to read the `alloy-vcenter-credentials` secret when running vSphere or VCD clusters.
+- Add `serviceWhenDisabled.enabled`, keeping the Service rendered while `alloy.enabled` is `false`. Off by default.
 
 ## [0.21.2] - 2026-08-06
 

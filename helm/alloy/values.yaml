@@ -10,6 +10,14 @@ networkPolicy:
     egress: []
     ingress: []
 
+serviceWhenDisabled:
+  # -- Keep the Service rendered while `alloy.enabled` is false. Exists for
+  # `alloy-logexporter`, which ships disabled on every management cluster and is the target
+  # of an Envoy request mirror: a Gateway API backendRef naming a Service that does not
+  # exist fails the whole route rule, so the mirror would break Loki's write path rather
+  # than just itself. No other alloy role needs this.
+  enabled: false
+
 # Enable Kyverno PolicyException
 kyvernoPolicyExceptions:
   enabled: true
