@@ -258,6 +258,14 @@
         "podLogs": {
             "type": "array"
         },
+        "serviceWhenDisabled": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
         "verticalPodAutoscaler": {
             "type": "object",
             "properties": {
