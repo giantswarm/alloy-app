@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-09-14
+
 ### Changed
 
 - Upgrade Alloy upstream chart from 1.10.0 to 1.12.1 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md#1121-2026-08-26))
@@ -300,7 +302,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - changed: `app.giantswarm.io` label group was changed to `application.giantswarm.io`
 
-[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.22.0...HEAD
+[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.23.0...HEAD
+[0.23.0]: https://github.com/giantswarm/alloy-app/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/giantswarm/alloy-app/compare/v0.21.2...v0.22.0
 [0.21.2]: https://github.com/giantswarm/alloy-app/compare/v0.21.1...v0.21.2
 [0.21.1]: https://github.com/giantswarm/alloy-app/compare/v0.21.0...v0.21.1
