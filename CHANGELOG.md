@@ -22,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Allow `verticalPodAutoscaler.updatePolicy` to be set, including the in-place update modes.
-- Set `appVersion` in `Chart.yaml` to the Alloy version the chart actually deploys.
 
 ## [0.22.0] - 2026-09-09
 
