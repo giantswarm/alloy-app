@@ -1,0 +1,6 @@
+# Test chart renders with a VerticalPodAutoscaler update policy
+verticalPodAutoscaler:
+  enabled: true
+  updatePolicy:
+    minReplicas: 1
+    updateMode: InPlaceOrRecreate
