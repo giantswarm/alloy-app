@@ -2,7 +2,7 @@ apiVersion: v2
 name: alloy
 description: Grafana Alloy OpenTelemetry Collector
 version: 0.22.0
-appVersion: v1.17.0
+appVersion: v1.19.2
 home: https://github.com/giantswarm/alloy-app
 icon: https://s.giantswarm.io/app-icons/grafana-alloy/1/light.png
 maintainers:

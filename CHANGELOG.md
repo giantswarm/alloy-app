@@ -7,9 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade Alloy upstream chart from 1.10.0 to 1.12.1 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md#1121-2026-08-26))
+  - This bumps the version of Alloy from 1.17.0 to 1.19.2 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/CHANGELOG.md#1190-2026-08-21)), which includes several CVE fixes.
+  - Alloy Breaking changes
+    - [prometheus.operator.servicemonitors] ServiceMonitor endpoints referencing `bearerTokenFile`, `tlsConfig.caFile`, `tlsConfig.certFile` or `tlsConfig.keyFile` are now rejected. Set `allow_arbitrary_file_access = true` to keep the previous behaviour.
+    - [otelcol.receiver.otlp] The HTTP server now defaults to `idle_timeout = "1m"`, `read_header_timeout = "1m"` and `write_timeout = "30s"` instead of `"0s"`.
+    - See [Alloy v1.18.0](https://github.com/grafana/alloy/releases/tag/v1.18.0) and [v1.19.0](https://github.com/grafana/alloy/releases/tag/v1.19.0) release notes
+  - [beyla.ebpf] Beyla now runs as a subprocess, which raises the memory used by the Alloy container.
+
 ### Fixed
 
 - Allow `verticalPodAutoscaler.updatePolicy` to be set, including the in-place update modes.
+- Set `appVersion` in `Chart.yaml` to the Alloy version the chart actually deploys.
 
 ## [0.22.0] - 2026-09-09
 
