@@ -1,0 +1,3 @@
+# Test chart renders with the vCenter receiver RBAC enabled
+vcenterReceiver:
+  enabled: true
