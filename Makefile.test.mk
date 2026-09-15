@@ -68,6 +68,6 @@ test-chart-disabled: chart-deps ## Assert `alloy.enabled=false` renders nothing 
 
 ##@ Script tests
 
-test-liveness-probe: ## Run scripts/mimir-rules-liveness-probe.sh against a mock Alloy API and Mimir ruler.
+test-liveness-probe: ## Run helm/alloy/scripts/mimir-rules-liveness-probe.sh against a mock Alloy API and Mimir ruler.
 	@echo "====> $@"
 	@tests/liveness-probe/run-tests.sh

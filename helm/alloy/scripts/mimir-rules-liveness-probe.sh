@@ -78,11 +78,16 @@ raw_http_get() {
 }
 
 # Re-exec entrypoint, so that each request can be bounded by `timeout`.
+# Otherwise, if the connection hangs, the probe would never return and Kubernetes would restart Alloy for the wrong reason.
 if [[ ${1:-} == --http-get ]]; then
 	raw_http_get "$2" 2>/dev/null
 	exit $?
 fi
 
+# http_get URL
+#
+# Same output as raw_http_get, but runs it in a child process bounded by
+# HTTP_TIMEOUT. Returns non-zero when the request failed or timed out.
 http_get() {
 	timeout "$HTTP_TIMEOUT" bash "$0" --http-get "$1"
 }
@@ -99,6 +104,7 @@ json_string_after() {
 	printf '%s\n' "${match##*\"}"
 }
 
+# List Alloy components
 components=$(http_get "${ALLOY_URL%/}/api/v0/web/components") || {
 	log "Alloy API is unreachable, skipping check"
 	exit 0
@@ -108,12 +114,14 @@ if [[ ${components%%$'\n'*} != 200 ]]; then
 	exit 0
 fi
 
+# Collect mimir.rules.kubernetes component IDs.
 ids=$(grep -o '"localID":"mimir\.rules\.kubernetes\.[^"]*"' <<<"$components" | cut -d'"' -f4 | sort -u)
 if [[ -z $ids ]]; then
 	log "No mimir.rules.kubernetes component found"
 	exit 0
 fi
 
+# Probe each component to detect if one is unhealthy while its Mimir ruler is ready.
 while read -r id; do
 	detail=$(http_get "${ALLOY_URL%/}/api/v0/web/components/${id}") || {
 		log "${id}: component API is unreachable, skipping"
@@ -152,6 +160,8 @@ while read -r id; do
 		continue
 	fi
 
+	# Detected a mimir.rules.kubernetes component that is unhealthy while its Mimir ruler is ready.
+	# This is the bug we work around, so exit non-zero to trigger an unhealthy liveness probe.
 	log "${id}: unhealthy while Mimir ruler ${ready_url} is ready, Alloy needs a restart (grafana/alloy#6339)"
 	exit 1
 done <<<"$ids"
