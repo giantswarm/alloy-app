@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# Tests scripts/mimir-rules-liveness-probe.sh against mock.go, a stand-in for
-# the Alloy web API and for a Mimir ruler readiness endpoint.
+# Tests helm/alloy/scripts/mimir-rules-liveness-probe.sh against mock.go, a
+# stand-in for the Alloy web API and for a Mimir ruler readiness endpoint.
 #
 # Usage: make test-liveness-probe (or ./run-tests.sh)
 
 set -uo pipefail
 
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-PROBE=$HERE/../../scripts/mimir-rules-liveness-probe.sh
+PROBE=$HERE/../../helm/alloy/scripts/mimir-rules-liveness-probe.sh
 
 TMP=$(mktemp -d)
 MOCK=$TMP/mock
