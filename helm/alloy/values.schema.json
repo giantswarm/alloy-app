@@ -258,6 +258,14 @@
         "podLogs": {
             "type": "array"
         },
+        "serviceAccountTokenSecret": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
         "serviceWhenDisabled": {
             "type": "object",
             "properties": {
