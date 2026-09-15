@@ -1,0 +1,30 @@
+{{- /*
+Workaround for alloy-logexporter; see serviceWhenDisabled in values.yaml.
+Named like the subchart's Service, so enabling the chart updates this one in place.
+*/ -}}
+{{- if and .Values.serviceWhenDisabled.enabled (not .Values.alloy.enabled) }}
+{{- $alloy := (.Values.alloy | default dict).alloy | default dict }}
+{{- $listenPort := $alloy.listenPort | default 12345 }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "alloy-app.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "alloy-app.disabledLabels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "alloy-app.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http-metrics
+      port: {{ $listenPort }}
+      targetPort: {{ $listenPort }}
+      protocol: TCP
+{{- range $alloy.extraPorts | default list }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      targetPort: {{ .targetPort | default .port }}
+      protocol: {{ .protocol | default "TCP" }}
+{{- end }}
+{{- end }}

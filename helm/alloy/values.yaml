@@ -10,6 +10,14 @@ networkPolicy:
     egress: []
     ingress: []
 
+serviceWhenDisabled:
+  # -- Keep the Service rendered while `alloy.enabled` is false. Exists for
+  # `alloy-logexporter`, which ships disabled on every management cluster and is the target
+  # of an Envoy request mirror: a Gateway API backendRef naming a Service that does not
+  # exist fails the whole route rule, so the mirror would break Loki's write path rather
+  # than just itself. No other alloy role needs this.
+  enabled: false
+
 # Enable Kyverno PolicyException
 kyvernoPolicyExceptions:
   enabled: true
@@ -144,7 +152,8 @@ verticalPodAutoscaler:
     # -- Specifies minimal number of replicas which need to be alive for VPA Updater to attempt pod eviction
     # minReplicas: 1
     # -- Specifies whether recommended updates are applied when a Pod is started and whether recommended updates
-    # are applied during the life of a Pod. Possible values are "Off", "Initial", "Recreate", and "Auto".
+    # are applied during the life of a Pod. Possible values are "Off", "Initial", "Recreate", "InPlace",
+    # "InPlaceOrRecreate", and "Auto".
     # updateMode: Auto
 
 # Creates PodLogs resources along Alloy

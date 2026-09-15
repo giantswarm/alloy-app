@@ -7,10 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-09-14
+
+### Changed
+
+- Upgrade Alloy upstream chart from 1.10.0 to 1.12.1 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md#1121-2026-08-26))
+  - This bumps the version of Alloy from 1.17.0 to 1.19.2 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/CHANGELOG.md#1190-2026-08-21)), which includes several CVE fixes.
+  - Alloy Breaking changes
+    - [prometheus.operator.servicemonitors] ServiceMonitor endpoints referencing `bearerTokenFile`, `tlsConfig.caFile`, `tlsConfig.certFile` or `tlsConfig.keyFile` are now rejected. Set `allow_arbitrary_file_access = true` to keep the previous behaviour.
+    - [otelcol.receiver.otlp] The HTTP server now defaults to `idle_timeout = "1m"`, `read_header_timeout = "1m"` and `write_timeout = "30s"` instead of `"0s"`.
+    - See [Alloy v1.18.0](https://github.com/grafana/alloy/releases/tag/v1.18.0) and [v1.19.0](https://github.com/grafana/alloy/releases/tag/v1.19.0) release notes
+  - [beyla.ebpf] Beyla now runs as a subprocess, which raises the memory used by the Alloy container.
+
+### Fixed
+
+- Allow `verticalPodAutoscaler.updatePolicy` to be set, including the in-place update modes.
+
+## [0.22.0] - 2026-09-09
+
 ### Added
 
 - Add RBAC to allow `alloy-metrics` to read the `alloy-vcenter-credentials` secret when running vSphere or VCD clusters.
 - Add `helm/alloy/scripts/mimir-rules-liveness-probe.sh`, a liveness probe working around [grafana/alloy#6339](https://github.com/grafana/alloy/pull/6339): a `mimir.rules.kubernetes` component that starts while the Mimir ruler is down stays unhealthy forever and never syncs rules again. The probe exits non-zero once such a component is unhealthy while its own ruler is ready again, so that Alloy is restarted. It is shipped in a ConfigMap, mounted into the Alloy container and set as its `livenessProbe`. Covered by `make test-liveness-probe`.
+- Add `serviceWhenDisabled.enabled`, keeping the Service rendered while `alloy.enabled` is `false`. Off by default.
 
 ## [0.21.2] - 2026-08-06
 
@@ -283,7 +302,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - changed: `app.giantswarm.io` label group was changed to `application.giantswarm.io`
 
-[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.21.2...HEAD
+[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.23.0...HEAD
+[0.23.0]: https://github.com/giantswarm/alloy-app/compare/v0.22.0...v0.23.0
+[0.22.0]: https://github.com/giantswarm/alloy-app/compare/v0.21.2...v0.22.0
 [0.21.2]: https://github.com/giantswarm/alloy-app/compare/v0.21.1...v0.21.2
 [0.21.1]: https://github.com/giantswarm/alloy-app/compare/v0.21.0...v0.21.1
 [0.21.0]: https://github.com/giantswarm/alloy-app/compare/v0.20.1...v0.21.0

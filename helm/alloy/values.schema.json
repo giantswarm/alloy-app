@@ -258,6 +258,14 @@
         "podLogs": {
             "type": "array"
         },
+        "serviceWhenDisabled": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
         "verticalPodAutoscaler": {
             "type": "object",
             "properties": {
@@ -299,7 +307,29 @@
                     }
                 },
                 "updatePolicy": {
-                    "type": "null"
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "properties": {
+                        "minReplicas": {
+                            "type": "integer"
+                        },
+                        "updateMode": {
+                            "type": "string",
+                            "enum": [
+                                "Off",
+                                "Initial",
+                                "Recreate",
+                                "InPlace",
+                                "InPlaceOrRecreate",
+                                "Auto"
+                            ]
+                        },
+                        "evictionRequirements": {
+                            "type": "array"
+                        }
+                    }
                 }
             }
         },

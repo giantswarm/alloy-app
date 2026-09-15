@@ -1,0 +1,12 @@
+# alloy-logexporter's case: the Service survives, everything else renders as nothing.
+alloy:
+  enabled: false
+  alloy:
+    extraPorts:
+      - name: push
+        port: 3100
+        targetPort: 3100
+        protocol: TCP
+
+serviceWhenDisabled:
+  enabled: true
