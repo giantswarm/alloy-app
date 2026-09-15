@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Optional `serviceAccountTokenSecret.enabled` to render a long-lived service account token Secret.
+
 ## [0.23.0] - 2026-09-14
 
 ### Changed
