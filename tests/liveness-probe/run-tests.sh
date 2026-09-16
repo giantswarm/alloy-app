@@ -83,42 +83,71 @@ run_case() {
 
 go build -C "$HERE" -o "$MOCK" . || exit 1
 
+CREDS=(MIMIR_USERNAME=probe MIMIR_PASSWORD=s3cret)
+
+PROBE_ENV=("${CREDS[@]}")
 run_case "healthy + ruler answers" 0 \
 	-component 'giantswarm=healthy=RULER'
-# Mimir answers the ruler config API with 401 when it is queried without
-# credentials, which is all the probe needs to know it is up.
-run_case "unhealthy + ruler answers 401" 1 \
-	-component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}")
 run_case "unhealthy + ruler answers 200" 1 \
-	-ruler-status 200 -component 'giantswarm=unhealthy=RULER'
+	-component 'giantswarm=unhealthy=RULER'
+# A Mimir whose ruler is down answers 502 through its gateway. Restarting Alloy
+# then would fight the outage rather than the bug.
+PROBE_ENV=("${CREDS[@]}")
+run_case "unhealthy + ruler down behind gateway (502)" 0 \
+	-ruler-status 502 -component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}")
 run_case "unhealthy + ruler answers 503" 0 \
 	-ruler-status 503 -component 'giantswarm=unhealthy=RULER'
+# The gateway answers 401 at the edge, up or down, so the probe has to
+# authenticate and must not read a 401 as an answer from the ruler.
+PROBE_ENV=("${CREDS[@]}")
+run_case "unhealthy + authenticated ruler" 1 \
+	-ruler-auth 'probe:s3cret' -component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=(MIMIR_USERNAME=probe MIMIR_PASSWORD=wrong)
+run_case "unhealthy + wrong credentials (401)" 0 \
+	-ruler-auth 'probe:s3cret' -component 'giantswarm=unhealthy=RULER'
+run_case "unhealthy + no credentials configured" 0 \
+	-ruler-auth 'probe:s3cret' -component 'giantswarm=unhealthy=RULER'
+# The ruler is queried as the tenant the component writes rules for.
+PROBE_ENV=("${CREDS[@]}")
+run_case "unhealthy + ruler requires the tenant" 1 \
+	-tenant-id 'giantswarm' -ruler-tenant 'giantswarm' -component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}")
 run_case "unhealthy + ruler unreachable" 0 \
 	-component 'giantswarm=unhealthy=http://127.0.0.1:1'
+PROBE_ENV=("${CREDS[@]}")
 run_case "unhealthy + https ruler answers" 1 \
 	-component 'giantswarm=unhealthy=RULER_TLS'
+PROBE_ENV=("${CREDS[@]}")
 run_case "unhealthy + https ruler unreachable" 0 \
 	-component 'giantswarm=unhealthy=https://mimir-gateway.invalid'
 # Alloy frames its larger API payloads in chunks, which the probe has to decode
 # before it can read the component health out of them.
+PROBE_ENV=("${CREDS[@]}")
 run_case "unhealthy + chunked Alloy API" 1 \
 	-chunked -component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}")
 run_case "healthy + chunked Alloy API" 0 \
 	-chunked -component 'giantswarm=healthy=RULER'
+PROBE_ENV=("${CREDS[@]}")
 run_case "unknown health" 0 \
 	-component 'giantswarm=unknown=RULER'
 run_case "no mimir.rules.kubernetes component" 0
+PROBE_ENV=("${CREDS[@]}")
 run_case "two components, second one broken" 1 \
 	-component 'a=healthy=RULER' \
 	-component 'b=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}")
 run_case "address with a trailing slash" 1 \
 	-component 'giantswarm=unhealthy=RULER/'
+PROBE_ENV=("${CREDS[@]}")
 run_case "address with a hostname" 1 \
 	-component 'giantswarm=unhealthy=RULER_LOCALHOST'
 
 # The readiness URL of every component can be overridden, for a ruler that is
 # not reachable at the address the component writes rules to.
-PROBE_ENV=(MIMIR_READY_URL=RULER/prometheus/config/v1/rules)
+PROBE_ENV=("${CREDS[@]}" MIMIR_READY_URL=RULER/prometheus/config/v1/rules)
 run_case "MIMIR_READY_URL override" 1 \
 	-component 'giantswarm=unhealthy=http://127.0.0.1:1'
 
@@ -126,7 +155,7 @@ run_case "MIMIR_READY_URL override" 1 \
 # event, so a failure has to explain itself in a single line: anything printed
 # alongside it pushes the reason out of view or gets truncated away.
 start_mock -component 'a=healthy=RULER' -component 'b=unhealthy=RULER' || exit 1
-out=$(ALLOY_URL="http://$alloy" bash "$PROBE" 2>&1)
+out=$(env ALLOY_URL="http://$alloy" "${CREDS[@]}" bash "$PROBE" 2>&1)
 rc=$?
 stop_mock
 lines=$(printf '%s\n' "$out" | wc -l)

@@ -77,10 +77,11 @@ func (s *specs) Set(v string) error { *s = append(*s, v); return nil }
 
 func main() {
 	var comps specs
-	// Mimir answers 401 on the ruler config API without credentials, which the
-	// probe counts as reachable.
-	rulerStatus := flag.Int("ruler-status", http.StatusUnauthorized, "status code returned by the ruler config API")
+	rulerStatus := flag.Int("ruler-status", http.StatusOK, "status code returned by the ruler config API to an authenticated request")
+	rulerAuth := flag.String("ruler-auth", "", "basic auth user:password the ruler config API requires, empty to require none")
+	rulerTenant := flag.String("ruler-tenant", "", "X-Scope-OrgID the ruler config API requires, empty to require none")
 	hang := flag.Bool("hang", false, "accept requests on the Alloy API but never answer them")
+	tenantID := flag.String("tenant-id", "anonymous", "tenant_id argument reported for every component")
 	chunked := flag.Bool("chunked", false, "flush the Alloy API responses, so they are framed as chunked")
 	flag.Var(&comps, "component", "mimir.rules.kubernetes component to serve, as label=health=address")
 	flag.Parse()
@@ -122,7 +123,7 @@ func main() {
 			Health:       &health{State: parts[1], Message: "boom", UpdatedTime: "2026-09-01T00:00:00Z"},
 			Arguments: []jsonAttr{
 				{Name: "address", Type: "attr", Value: jsonValue{Type: "string", Value: address}},
-				{Name: "tenant_id", Type: "attr", Value: jsonValue{Type: "string", Value: "anonymous"}},
+				{Name: "tenant_id", Type: "attr", Value: jsonValue{Type: "string", Value: *tenantID}},
 			},
 		}
 		details[d.LocalID] = d
@@ -155,6 +156,22 @@ func main() {
 
 	ruler := http.NewServeMux()
 	ruler.HandleFunc(rulerRulesPath, func(w http.ResponseWriter, r *http.Request) {
+		// A Mimir behind a gateway answers 401 at the edge, without ever
+		// asking the ruler, so an unauthenticated request says nothing about
+		// whether the ruler is up.
+		if *rulerAuth != "" {
+			user, pass, ok := r.BasicAuth()
+			if !ok || user+":"+pass != *rulerAuth {
+				w.WriteHeader(http.StatusUnauthorized)
+				fmt.Fprintln(w, "unauthorized")
+				return
+			}
+		}
+		if *rulerTenant != "" && r.Header.Get("X-Scope-OrgID") != *rulerTenant {
+			w.WriteHeader(http.StatusUnauthorized)
+			fmt.Fprintln(w, "wrong tenant")
+			return
+		}
 		w.WriteHeader(*rulerStatus)
 		fmt.Fprintln(w, "rules")
 	})

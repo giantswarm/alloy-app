@@ -8,9 +8,12 @@
 #
 # This probe discovers every mimir.rules.kubernetes component through the Alloy
 # API, and exits non-zero as soon as one of them is unhealthy while its own
-# Mimir ruler answers on the ruler config API. That API is queried without
-# credentials, so 401 counts as an answer: the probe needs to know that Mimir
-# is up, not to read anything from it.
+# Mimir ruler answers 200 on the ruler config API.
+#
+# The ruler is queried with the same credentials and tenant as the component
+# itself uses. Without them a Mimir behind a gateway answers 401 at the edge,
+# whether the ruler is up or down, which tells the probe nothing. Anything but
+# a 200, a 502 from a gateway whose ruler is down included, leaves Alloy alone.
 #
 # Anything else (Alloy API down, no such component, ruler unreachable) exits 0:
 # the probe only ever triggers a restart for the bug it works around.
@@ -25,6 +28,9 @@
 #                     /prometheus/config/v1/rules)
 #   MIMIR_READY_URL   Full reachability URL, used for every component instead
 #                     of the one derived from its `address` argument
+#   MIMIR_USERNAME    Basic auth user for the ruler. Unset disables the check,
+#   MIMIR_PASSWORD    so that Alloy is never restarted on a 401 the probe
+#                     caused itself.
 #   HTTP_TIMEOUT      Per request timeout seconds (default 5)
 
 set -uo pipefail
@@ -33,7 +39,14 @@ shopt -s extglob
 ALLOY_URL=${ALLOY_URL:-http://localhost:12345}
 MIMIR_READY_PATH=${MIMIR_READY_PATH:-/prometheus/config/v1/rules}
 MIMIR_READY_URL=${MIMIR_READY_URL:-}
+MIMIR_USERNAME=${MIMIR_USERNAME:-}
+MIMIR_PASSWORD=${MIMIR_PASSWORD:-}
 HTTP_TIMEOUT=${HTTP_TIMEOUT:-5}
+
+# Set by ruler_get for the requests that go to Mimir rather than to Alloy, and
+# read back by http_request in the child process it re-execs.
+PROBE_AUTH=${PROBE_AUTH:-}
+PROBE_TENANT=${PROBE_TENANT:-}
 
 log() {
 	printf '%s\n' "$*"
@@ -60,8 +73,17 @@ flush_notes() {
 # answer 426 to HTTP/1.0, and `Connection: close` terminates the response on
 # the connection close rather than on a body length we would have to track.
 http_request() {
-	printf 'GET %s HTTP/1.1\r\nHost: %s\r\nUser-Agent: alloy-mimir-rules-probe\r\nConnection: close\r\nAccept-Encoding: identity\r\n\r\n' \
-		"$1" "$2"
+	local extra=""
+
+	if [[ -n $PROBE_AUTH ]]; then
+		extra+="Authorization: Basic $(printf '%s' "${MIMIR_USERNAME}:${MIMIR_PASSWORD}" | base64 -w0)"$'\r\n'
+	fi
+	if [[ -n $PROBE_TENANT ]]; then
+		extra+="X-Scope-OrgID: ${PROBE_TENANT}"$'\r\n'
+	fi
+
+	printf 'GET %s HTTP/1.1\r\nHost: %s\r\nUser-Agent: alloy-mimir-rules-probe\r\nConnection: close\r\nAccept-Encoding: identity\r\n%s\r\n' \
+		"$1" "$2" "$extra"
 }
 
 # http_exchange SCHEME HOST PORT HOSTPORT PATH
@@ -176,6 +198,13 @@ http_get() {
 	timeout "$HTTP_TIMEOUT" bash "$0" --http-get "$1"
 }
 
+# ruler_get URL TENANT
+#
+# Same as http_get, with the credentials and the tenant the component uses.
+ruler_get() {
+	PROBE_AUTH=1 PROBE_TENANT=$2 timeout "$HTTP_TIMEOUT" bash "$0" --http-get "$1"
+}
+
 # json_string_after PATTERN JSON
 #
 # Prints the first JSON string value matching PATTERN, which must end with the
@@ -222,6 +251,12 @@ while read -r id; do
 		continue
 	fi
 
+	if [[ -z $MIMIR_USERNAME ]]; then
+		note "${id}: unhealthy but no Mimir credentials are configured, skipping"
+		continue
+	fi
+	tenant=$(json_string_after '"name":"tenant_id","type":"attr","value":{"type":"string","value":"' "$detail") || tenant=""
+
 	ready_url=$MIMIR_READY_URL
 	if [[ -z $ready_url ]]; then
 		address=$(json_string_after '"name":"address","type":"attr","value":{"type":"string","value":"' "$detail") || {
@@ -235,19 +270,19 @@ while read -r id; do
 		continue
 	fi
 
-	ready=$(http_get "$ready_url") || {
+	ready=$(ruler_get "$ready_url" "$tenant") || {
 		note "${id}: unhealthy but Mimir ruler ${ready_url} is unreachable, skipping"
 		continue
 	}
 	code=${ready%%$'\n'*}
-	if [[ $code != 200 && $code != 401 ]]; then
+	if [[ $code != 200 ]]; then
 		note "${id}: unhealthy but Mimir ruler ${ready_url} did not answer (${code}), skipping"
 		continue
 	fi
 
 	# Detected a mimir.rules.kubernetes component that is unhealthy while its Mimir ruler is ready.
 	# This is the bug we work around, so exit non-zero to trigger an unhealthy liveness probe.
-	log "${id}: unhealthy while Mimir ruler ${ready_url} answers (${code}), Alloy needs a restart (grafana/alloy#6339)"
+	log "${id}: unhealthy while Mimir ruler ${ready_url} answers 200, Alloy needs a restart (grafana/alloy#6339)"
 	exit 1
 done <<<"$ids"
 
