@@ -52,21 +52,6 @@ log() {
 	printf '%s\n' "$*"
 }
 
-# Notes about the components the probe walked through, printed only when it
-# does not fail. A failing probe prints its reason and nothing else: Kubernetes
-# surfaces that output in the kubelet log and in the Unhealthy event, where a
-# single line stays readable and does not push the reason out of view.
-notes=()
-
-note() {
-	notes+=("$*")
-}
-
-flush_notes() {
-	((${#notes[@]})) && printf '%s\n' "${notes[@]}"
-	return 0
-}
-
 # http_request PATH HOSTPORT
 #
 # Prints the raw HTTP request. HTTP/1.1 is required because ingresses commonly
@@ -237,22 +222,22 @@ fi
 # Probe each component to detect if one is unhealthy while its Mimir ruler is ready.
 while read -r id; do
 	detail=$(http_get "${ALLOY_URL%/}/api/v0/web/components/${id}") || {
-		note "${id}: component API is unreachable, skipping"
+		log "${id}: component API is unreachable, skipping"
 		continue
 	}
 	if [[ ${detail%%$'\n'*} != 200 ]]; then
-		note "${id}: component API returned ${detail%%$'\n'*}, skipping"
+		log "${id}: component API returned ${detail%%$'\n'*}, skipping"
 		continue
 	fi
 
 	health=$(json_string_after '"health":{"state":"' "$detail") || health=""
 	if [[ $health != unhealthy ]]; then
-		note "${id}: ${health:-unknown health}"
+		log "${id}: ${health:-unknown health}"
 		continue
 	fi
 
 	if [[ -z $MIMIR_USERNAME ]]; then
-		note "${id}: unhealthy but no Mimir credentials are configured, skipping"
+		log "${id}: unhealthy but no Mimir credentials are configured, skipping"
 		continue
 	fi
 	tenant=$(json_string_after '"name":"tenant_id","type":"attr","value":{"type":"string","value":"' "$detail") || tenant=""
@@ -260,23 +245,23 @@ while read -r id; do
 	ready_url=$MIMIR_READY_URL
 	if [[ -z $ready_url ]]; then
 		address=$(json_string_after '"name":"address","type":"attr","value":{"type":"string","value":"' "$detail") || {
-			note "${id}: unhealthy but its Mimir address could not be read, skipping"
+			log "${id}: unhealthy but its Mimir address could not be read, skipping"
 			continue
 		}
 		ready_url=${address%/}${MIMIR_READY_PATH}
 	fi
 	if [[ $ready_url != http://* && $ready_url != https://* ]]; then
-		note "${id}: unhealthy but ${ready_url} is not an HTTP URL, skipping"
+		log "${id}: unhealthy but ${ready_url} is not an HTTP URL, skipping"
 		continue
 	fi
 
 	ready=$(ruler_get "$ready_url" "$tenant") || {
-		note "${id}: unhealthy but Mimir ruler ${ready_url} is unreachable, skipping"
+		log "${id}: unhealthy but Mimir ruler ${ready_url} is unreachable, skipping"
 		continue
 	}
 	code=${ready%%$'\n'*}
 	if [[ $code != 200 ]]; then
-		note "${id}: unhealthy but Mimir ruler ${ready_url} did not answer (${code}), skipping"
+		log "${id}: unhealthy but Mimir ruler ${ready_url} did not answer (${code}), skipping"
 		continue
 	fi
 
@@ -286,5 +271,4 @@ while read -r id; do
 	exit 1
 done <<<"$ids"
 
-flush_notes
 exit 0
