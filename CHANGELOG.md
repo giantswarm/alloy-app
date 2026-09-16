@@ -7,11 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
+### Added
 
-- Query the Mimir ruler with credentials in the `mimir.rules.kubernetes` liveness probe, and restart Alloy only on a `200`. A Mimir behind a gateway answers `401` at the edge whether its ruler is up or down, so the previous unauthenticated check would have restarted Alloy throughout a Mimir outage. Credentials come from `MIMIR_USERNAME` and `MIMIR_PASSWORD`, which a release wires from its own Secret through `alloy.alloy.extraEnv`; without them the probe never restarts Alloy.
-- Report the `mimir.rules.kubernetes` liveness probe failure as a single line, so that the reason is readable in the kubelet log and in the `Unhealthy` event instead of trailing behind a line per component. What the probe saw about the other components is still printed when it does not fail.
-- Let the `mimir.rules.kubernetes` liveness probe reach a Mimir served over HTTPS, through `openssl s_client`. It previously skipped every `https://` ruler address, so it never restarted Alloy. Requests are now sent as HTTP/1.1, which ingresses answer instead of rejecting with `426`, and chunked responses are decoded. The ruler is checked on `/prometheus/config/v1/rules`, the API the component itself writes to, where a `401` counts as reachable since the probe queries it without credentials.
+- Liveness probe restarting Alloy when a `mimir.rules.kubernetes` component is unhealthy while its Mimir ruler answers `200`, working around [grafana/alloy#6339](https://github.com/grafana/alloy/pull/6339).
 
 ## [0.23.1] - 2026-09-15
 
