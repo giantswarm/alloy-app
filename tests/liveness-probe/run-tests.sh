@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Tests helm/alloy/scripts/mimir-rules-liveness-probe.sh against mock.go, a
-# stand-in for the Alloy web API and for a Mimir ruler readiness endpoint.
+# stand-in for the Alloy web API and for a Mimir ruler config API.
 #
 # Usage: make test-liveness-probe (or ./run-tests.sh)
 
@@ -83,16 +83,28 @@ run_case() {
 
 go build -C "$HERE" -o "$MOCK" . || exit 1
 
-run_case "healthy + ruler ready" 0 \
+run_case "healthy + ruler answers" 0 \
 	-component 'giantswarm=healthy=RULER'
-run_case "unhealthy + ruler ready" 1 \
+# Mimir answers the ruler config API with 401 when it is queried without
+# credentials, which is all the probe needs to know it is up.
+run_case "unhealthy + ruler answers 401" 1 \
 	-component 'giantswarm=unhealthy=RULER'
-run_case "unhealthy + ruler not ready (503)" 0 \
+run_case "unhealthy + ruler answers 200" 1 \
+	-ruler-status 200 -component 'giantswarm=unhealthy=RULER'
+run_case "unhealthy + ruler answers 503" 0 \
 	-ruler-status 503 -component 'giantswarm=unhealthy=RULER'
 run_case "unhealthy + ruler unreachable" 0 \
 	-component 'giantswarm=unhealthy=http://127.0.0.1:1'
-run_case "unhealthy + https ruler is skipped" 0 \
-	-component 'giantswarm=unhealthy=https://mimir-gateway.mimir'
+run_case "unhealthy + https ruler answers" 1 \
+	-component 'giantswarm=unhealthy=RULER_TLS'
+run_case "unhealthy + https ruler unreachable" 0 \
+	-component 'giantswarm=unhealthy=https://mimir-gateway.invalid'
+# Alloy frames its larger API payloads in chunks, which the probe has to decode
+# before it can read the component health out of them.
+run_case "unhealthy + chunked Alloy API" 1 \
+	-chunked -component 'giantswarm=unhealthy=RULER'
+run_case "healthy + chunked Alloy API" 0 \
+	-chunked -component 'giantswarm=healthy=RULER'
 run_case "unknown health" 0 \
 	-component 'giantswarm=unknown=RULER'
 run_case "no mimir.rules.kubernetes component" 0
@@ -106,7 +118,7 @@ run_case "address with a hostname" 1 \
 
 # The readiness URL of every component can be overridden, for a ruler that is
 # not reachable at the address the component writes rules to.
-PROBE_ENV=(MIMIR_READY_URL=RULER/ready)
+PROBE_ENV=(MIMIR_READY_URL=RULER/prometheus/config/v1/rules)
 run_case "MIMIR_READY_URL override" 1 \
 	-component 'giantswarm=unhealthy=http://127.0.0.1:1'
 

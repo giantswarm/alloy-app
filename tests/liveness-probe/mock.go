@@ -1,4 +1,4 @@
-// Mock of the Alloy web API and of a Mimir ruler readiness endpoint, used by
+// Mock of the Alloy web API and of a Mimir ruler config API, used by
 // run-tests.sh to exercise scripts/mimir-rules-liveness-probe.sh.
 //
 // The JSON served by the components endpoints mirrors what Alloy itself emits:
@@ -7,22 +7,37 @@
 // exactly like the CompressionHandler Alloy wraps its handlers with. The probe
 // parses those responses by hand, so the field names and their order matter.
 //
-// Both listeners bind an ephemeral port and their addresses are printed on
+// The ruler is served both in plain HTTP and, from a self-signed certificate
+// generated on startup, over TLS, so that both probe transports are exercised.
+//
+// Every listener binds an ephemeral port and their addresses are printed on
 // stdout, so concurrent runs never collide. Component addresses may therefore
-// not be known upfront: the RULER and RULER_LOCALHOST placeholders are replaced
-// with the ruler address once it is bound.
+// not be known upfront: the RULER, RULER_LOCALHOST and RULER_TLS placeholders
+// are replaced with the ruler address once it is bound.
 package main
 
 import (
 	"compress/gzip"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/tls"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
+	"math/big"
 	"net"
 	"net/http"
 	"strings"
+	"time"
 )
+
+// rulerRulesPath is the ruler config API, which the probe uses to tell a Mimir
+// that is down from an Alloy that is stuck.
+const rulerRulesPath = "/prometheus/config/v1/rules"
 
 type health struct {
 	State       string `json:"state"`
@@ -62,12 +77,19 @@ func (s *specs) Set(v string) error { *s = append(*s, v); return nil }
 
 func main() {
 	var comps specs
-	rulerStatus := flag.Int("ruler-status", http.StatusOK, "status code returned by the ruler /ready endpoint")
+	// Mimir answers 401 on the ruler config API without credentials, which the
+	// probe counts as reachable.
+	rulerStatus := flag.Int("ruler-status", http.StatusUnauthorized, "status code returned by the ruler config API")
 	hang := flag.Bool("hang", false, "accept requests on the Alloy API but never answer them")
+	chunked := flag.Bool("chunked", false, "flush the Alloy API responses, so they are framed as chunked")
 	flag.Var(&comps, "component", "mimir.rules.kubernetes component to serve, as label=health=address")
 	flag.Parse()
 
 	rulerListener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		log.Fatal(err)
+	}
+	rulerTLSListener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,6 +98,7 @@ func main() {
 		log.Fatal(err)
 	}
 	rulerAddr := rulerListener.Addr().String()
+	rulerTLSAddr := rulerTLSListener.Addr().String()
 
 	details := map[string]componentDetail{}
 	var list []componentDetail
@@ -86,6 +109,7 @@ func main() {
 		}
 		address := strings.NewReplacer(
 			"RULER_LOCALHOST", "http://localhost:"+portOf(rulerAddr),
+			"RULER_TLS", "https://"+rulerTLSAddr,
 			"RULER", "http://"+rulerAddr,
 		).Replace(parts[2])
 
@@ -118,7 +142,7 @@ func main() {
 			<-r.Context().Done()
 			return
 		}
-		writeJSON(w, r, list)
+		writeJSON(w, r, *chunked, list)
 	})
 	alloy.HandleFunc("/api/v0/web/components/", func(w http.ResponseWriter, r *http.Request) {
 		d, ok := details[strings.TrimPrefix(r.URL.Path, "/api/v0/web/components/")]
@@ -126,19 +150,44 @@ func main() {
 			http.NotFound(w, r)
 			return
 		}
-		writeJSON(w, r, d)
+		writeJSON(w, r, *chunked, d)
 	})
 
 	ruler := http.NewServeMux()
-	ruler.HandleFunc("/ready", func(w http.ResponseWriter, r *http.Request) {
+	ruler.HandleFunc(rulerRulesPath, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(*rulerStatus)
-		fmt.Fprintln(w, "ready")
+		fmt.Fprintln(w, "rules")
 	})
 
-	fmt.Printf("ruler=%s\nalloy=%s\n", rulerAddr, alloyListener.Addr())
+	fmt.Printf("ruler=%s\nruler_tls=%s\nalloy=%s\n", rulerAddr, rulerTLSAddr, alloyListener.Addr())
 
 	go func() { log.Fatal(http.Serve(rulerListener, ruler)) }()
+	go func() {
+		l := tls.NewListener(rulerTLSListener, &tls.Config{Certificates: []tls.Certificate{selfSigned()}})
+		log.Fatal(http.Serve(l, ruler))
+	}()
 	log.Fatal(http.Serve(alloyListener, alloy))
+}
+
+// selfSigned builds a throwaway certificate for 127.0.0.1. The probe checks
+// that the ruler answers at all, not who it is, so it does not verify the chain.
+func selfSigned() tls.Certificate {
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		log.Fatal(err)
+	}
+	tmpl := x509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject:      pkix.Name{CommonName: "mock-mimir-ruler"},
+		NotBefore:    time.Now().Add(-time.Hour),
+		NotAfter:     time.Now().Add(time.Hour),
+		IPAddresses:  []net.IP{net.ParseIP("127.0.0.1")},
+	}
+	der, err := x509.CreateCertificate(rand.Reader, &tmpl, &tmpl, &key.PublicKey, key)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return tls.Certificate{Certificate: [][]byte{der}, PrivateKey: key}
 }
 
 func portOf(addr string) string {
@@ -150,11 +199,18 @@ func portOf(addr string) string {
 }
 
 // writeJSON mimics Alloy's CompressionHandler: gzip when the client asks for it.
-func writeJSON(w http.ResponseWriter, r *http.Request, v any) {
+// Flushing first leaves the response without a Content-Length, so that Go frames
+// it in chunks the way Alloy does for its larger payloads.
+func writeJSON(w http.ResponseWriter, r *http.Request, chunked bool, v any) {
 	b, err := json.Marshal(v)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+	if chunked {
+		if f, ok := w.(http.Flusher); ok {
+			f.Flush()
+		}
 	}
 	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 		w.Header().Set("Content-Encoding", "gzip")

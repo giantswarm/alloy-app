@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Let the `mimir.rules.kubernetes` liveness probe reach a Mimir served over HTTPS, through `openssl s_client`. It previously skipped every `https://` ruler address, so it never restarted Alloy. Requests are now sent as HTTP/1.1, which ingresses answer instead of rejecting with `426`, and chunked responses are decoded. The ruler is checked on `/prometheus/config/v1/rules`, the API the component itself writes to, where a `401` counts as reachable since the probe queries it without credentials.
+
 ## [0.23.1] - 2026-09-15
 
 ### Added
