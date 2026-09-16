@@ -122,6 +122,21 @@ PROBE_ENV=(MIMIR_READY_URL=RULER/prometheus/config/v1/rules)
 run_case "MIMIR_READY_URL override" 1 \
 	-component 'giantswarm=unhealthy=http://127.0.0.1:1'
 
+# Kubernetes shows the probe output in the kubelet log and in the Unhealthy
+# event, so a failure has to explain itself in a single line: anything printed
+# alongside it pushes the reason out of view or gets truncated away.
+start_mock -component 'a=healthy=RULER' -component 'b=unhealthy=RULER' || exit 1
+out=$(ALLOY_URL="http://$alloy" bash "$PROBE" 2>&1)
+rc=$?
+stop_mock
+lines=$(printf '%s\n' "$out" | wc -l)
+if [[ $rc == 1 && $lines == 1 && $out == *"mimir.rules.kubernetes.b: unhealthy while"* ]]; then
+	printf 'PASS  %-45s rc=%s | %s\n' "failure explains itself in one line" "$rc" "$out"
+else
+	printf 'FAIL  %-45s rc=%s lines=%s | %s\n' "failure explains itself in one line" "$rc" "$lines" "${out//$'\n'/ ; }"
+	failures=$((failures + 1))
+fi
+
 # An Alloy API that accepts the connection but never answers must be given up
 # on rather than time the probe out, which Kubernetes counts as a failure.
 before=$(date +%s)
