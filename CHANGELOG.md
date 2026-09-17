@@ -38,7 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add RBAC to allow `alloy-metrics` to read the `alloy-vcenter-credentials` secret when running vSphere or VCD clusters.
-- Add `helm/alloy/scripts/mimir-rules-liveness-probe.sh`, a liveness probe working around [grafana/alloy#6339](https://github.com/grafana/alloy/pull/6339): a `mimir.rules.kubernetes` component that starts while the Mimir ruler is down stays unhealthy forever and never syncs rules again. The probe exits non-zero once such a component is unhealthy while its own ruler is ready again, so that Alloy is restarted. It is shipped in a ConfigMap, mounted into the Alloy container and set as its `livenessProbe`. Covered by `make test-liveness-probe`.
 - Add `serviceWhenDisabled.enabled`, keeping the Service rendered while `alloy.enabled` is `false`. Off by default.
 
 ## [0.21.2] - 2026-08-06
