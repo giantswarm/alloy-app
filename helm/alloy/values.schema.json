@@ -236,6 +236,15 @@
                 }
             }
         },
+        "mimirRulesLivenessProbe": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "default": false,
+                    "type": "boolean"
+                }
+            }
+        },
         "networkPolicy": {
             "type": "object",
             "properties": {
