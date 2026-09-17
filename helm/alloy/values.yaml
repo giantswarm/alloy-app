@@ -33,6 +33,57 @@ serviceAccountTokenSecret:
   # authenticate with. Only needed by the instance that scrapes them.
   enabled: false
 
+mimirRulesLivenessProbe:
+  # -- Render the ConfigMap holding the liveness probe script that restarts Alloy when a
+  # `mimir.rules.kubernetes` component stays unhealthy while its Mimir ruler answers 200,
+  # working around https://github.com/grafana/alloy/pull/6339.
+  # The ConfigMap is rendered as `<release>-mimir-rules-liveness-probe`. Mounting it and
+  # running it is left to the release, because Helm replaces these lists instead of
+  # merging them:
+  #
+  #   alloy:
+  #     alloy:
+  #       mounts:
+  #         extra:
+  #         - name: alloy-tmp
+  #           mountPath: /tmp/alloy
+  #         - name: mimir-rules-liveness-probe
+  #           mountPath: /etc/mimir-rules-liveness-probe
+  #           readOnly: true
+  #       # A Mimir behind a gateway answers 401 to an unauthenticated request whether its
+  #       # ruler is up or down, so the probe needs credentials to reach it.
+  #       extraEnv:
+  #       - name: MIMIR_USERNAME
+  #         valueFrom:
+  #           secretKeyRef:
+  #             name: alloy-metrics
+  #             key: metrics-username
+  #             optional: true
+  #       - name: MIMIR_PASSWORD
+  #         valueFrom:
+  #           secretKeyRef:
+  #             name: alloy-metrics
+  #             key: metrics-password
+  #             optional: true
+  #       livenessProbe:
+  #         exec:
+  #           command:
+  #           - bash
+  #           - /etc/mimir-rules-liveness-probe/mimir-rules-liveness-probe.sh
+  #         initialDelaySeconds: 60
+  #         periodSeconds: 60
+  #         timeoutSeconds: 15
+  #         failureThreshold: 3
+  #     controller:
+  #       volumes:
+  #         extra:
+  #         - name: alloy-tmp
+  #           emptyDir: {}
+  #         - name: mimir-rules-liveness-probe
+  #           configMap:
+  #             name: alloy-metrics-mimir-rules-liveness-probe
+  enabled: false
+
 alloy:
   # Setting this to "false" makes the whole chart render nothing: it disables both the
   # upstream Alloy chart and all Giant Swarm additions (NetworkPolicy, Kyverno
@@ -53,44 +104,6 @@ alloy:
         # This is needed to allow alloy to create files when using readOnlyRootFilesystem
         - name: alloy-tmp
           mountPath: /tmp/alloy
-        # Workaround script for mimir.rules.kubernetes staying unhealthy after a restart
-        # see https://github.com/giantswarm/alloy-app/pull/311
-        - name: alloy-mimir-rules-liveness-probe
-          mountPath: /etc/alloy-mimir-rules-liveness-probe
-          readOnly: true
-
-    # -- Extra environment variables to pass to the Grafana Alloy container.
-    # The liveness probe below authenticates to Mimir with MIMIR_USERNAME and
-    # MIMIR_PASSWORD, which a release wires from its own Secret, for example:
-    #
-    #   extraEnv:
-    #     - name: MIMIR_USERNAME
-    #       valueFrom:
-    #         secretKeyRef:
-    #           name: alloy-metrics
-    #           key: metrics-username
-    #           optional: true
-    #     - name: MIMIR_PASSWORD
-    #       valueFrom:
-    #         secretKeyRef:
-    #           name: alloy-metrics
-    #           key: metrics-password
-    #           optional: true
-    #
-    # Without them the probe never restarts Alloy: a Mimir behind a gateway
-    # answers 401 to an unauthenticated request whether its ruler is up or down.
-    extraEnv: []
-
-    # -- Set livenessProbe for the Grafana Alloy container.
-    livenessProbe:
-      exec:
-        command:
-        - bash
-        - /etc/alloy-mimir-rules-liveness-probe/mimir-rules-liveness-probe.sh
-      initialDelaySeconds: 60
-      periodSeconds: 60
-      timeoutSeconds: 15
-      failureThreshold: 3
 
     # -- Resource requests and limits to apply to the Grafana Alloy container.
     resources:
@@ -137,9 +150,6 @@ alloy:
       extra:
         - name: alloy-tmp
           emptyDir: {}
-        - name: alloy-mimir-rules-liveness-probe
-          configMap:
-            name: alloy-mimir-rules-liveness-probe
 
   serviceMonitor:
     enabled: true
