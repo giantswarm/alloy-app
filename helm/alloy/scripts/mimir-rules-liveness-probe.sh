@@ -221,6 +221,7 @@ fi
 
 # Probe each component to detect if one is unhealthy while its Mimir ruler is ready.
 while read -r id; do
+	# Read the component detail, which carries its health and its arguments.
 	detail=$(http_get "${ALLOY_URL%/}/api/v0/web/components/${id}") || {
 		log "${id}: component API is unreachable, skipping"
 		continue
@@ -230,18 +231,21 @@ while read -r id; do
 		continue
 	fi
 
+	# A component that is not unhealthy is left alone.
 	health=$(json_string_after '"health":{"state":"' "$detail") || health=""
 	if [[ $health != unhealthy ]]; then
 		log "${id}: ${health:-unknown health}"
 		continue
 	fi
 
+	# The ruler is queried with the credentials and the tenant of the component.
 	if [[ -z $MIMIR_USERNAME ]]; then
 		log "${id}: unhealthy but no Mimir credentials are configured, skipping"
 		continue
 	fi
 	tenant=$(json_string_after '"name":"tenant_id","type":"attr","value":{"type":"string","value":"' "$detail") || tenant=""
 
+	# The ruler URL comes from the override, or from the component `address`.
 	ready_url=$MIMIR_READY_URL
 	if [[ -z $ready_url ]]; then
 		address=$(json_string_after '"name":"address","type":"attr","value":{"type":"string","value":"' "$detail") || {
@@ -255,6 +259,7 @@ while read -r id; do
 		continue
 	fi
 
+	# Only a 200 proves the ruler is back. Anything else leaves Alloy alone.
 	ready=$(ruler_get "$ready_url" "$tenant") || {
 		log "${id}: unhealthy but Mimir ruler ${ready_url} is unreachable, skipping"
 		continue
