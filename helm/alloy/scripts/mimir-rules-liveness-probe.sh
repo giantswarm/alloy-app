@@ -26,8 +26,6 @@
 #   ALLOY_URL         Alloy HTTP endpoint         (default http://localhost:12345)
 #   MIMIR_READY_PATH  Ruler reachability path     (default
 #                     /prometheus/config/v1/rules)
-#   MIMIR_READY_URL   Full reachability URL, used for every component instead
-#                     of the one derived from its `address` argument
 #   MIMIR_USERNAME    Basic auth user for the ruler. Unset disables the check,
 #   MIMIR_PASSWORD    so that Alloy is never restarted on a 401 the probe
 #                     caused itself.
@@ -38,7 +36,6 @@ shopt -s extglob
 
 ALLOY_URL=${ALLOY_URL:-http://localhost:12345}
 MIMIR_READY_PATH=${MIMIR_READY_PATH:-/prometheus/config/v1/rules}
-MIMIR_READY_URL=${MIMIR_READY_URL:-}
 MIMIR_USERNAME=${MIMIR_USERNAME:-}
 MIMIR_PASSWORD=${MIMIR_PASSWORD:-}
 HTTP_TIMEOUT=${HTTP_TIMEOUT:-5}
@@ -245,15 +242,12 @@ while read -r id; do
 	fi
 	tenant=$(json_string_after '"name":"tenant_id","type":"attr","value":{"type":"string","value":"' "$detail") || tenant=""
 
-	# The ruler URL comes from the override, or from the component `address`.
-	ready_url=$MIMIR_READY_URL
-	if [[ -z $ready_url ]]; then
-		address=$(json_string_after '"name":"address","type":"attr","value":{"type":"string","value":"' "$detail") || {
-			log "${id}: unhealthy but its Mimir address could not be read, skipping"
-			continue
-		}
-		ready_url=${address%/}${MIMIR_READY_PATH}
-	fi
+	# The ruler URL comes from the component `address`.
+	address=$(json_string_after '"name":"address","type":"attr","value":{"type":"string","value":"' "$detail") || {
+		log "${id}: unhealthy but its Mimir address could not be read, skipping"
+		continue
+	}
+	ready_url=${address%/}${MIMIR_READY_PATH}
 	if [[ $ready_url != http://* && $ready_url != https://* ]]; then
 		log "${id}: unhealthy but ${ready_url} is not an HTTP URL, skipping"
 		continue

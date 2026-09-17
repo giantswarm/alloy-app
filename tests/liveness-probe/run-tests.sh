@@ -145,12 +145,6 @@ PROBE_ENV=("${CREDS[@]}")
 run_case "address with a hostname" 1 \
 	-component 'giantswarm=unhealthy=RULER_LOCALHOST'
 
-# The readiness URL of every component can be overridden, for a ruler that is
-# not reachable at the address the component writes rules to.
-PROBE_ENV=("${CREDS[@]}" MIMIR_READY_URL=RULER/prometheus/config/v1/rules)
-run_case "MIMIR_READY_URL override" 1 \
-	-component 'giantswarm=unhealthy=http://127.0.0.1:1'
-
 # An Alloy API that accepts the connection but never answers must be given up
 # on rather than time the probe out, which Kubernetes counts as a failure.
 before=$(date +%s)
