@@ -1,0 +1,15 @@
+{{- if .Values.alloy.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # Hardcoded (not using the alloy.fullname helper): values.yaml isn't templated, so
+  # the volume referencing this ConfigMap (alloy.controller.volumes.extra) needs a
+  # literal name it can match against.
+  name: alloy-mimir-rules-liveness-probe
+  labels:
+    {{- include "alloy.labels" . | nindent 4 }}
+    app.kubernetes.io/component: config
+data:
+  mimir-rules-liveness-probe.sh: |-
+{{ .Files.Get "scripts/mimir-rules-liveness-probe.sh" | indent 4 }}
+{{- end }}

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Liveness probe restarting Alloy when a `mimir.rules.kubernetes` component is unhealthy while its Mimir ruler answers `200`, working around [grafana/alloy#6339](https://github.com/grafana/alloy/pull/6339).
+
 ## [0.23.1] - 2026-09-15
 
 ### Added

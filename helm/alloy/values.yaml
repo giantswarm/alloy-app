@@ -53,6 +53,44 @@ alloy:
         # This is needed to allow alloy to create files when using readOnlyRootFilesystem
         - name: alloy-tmp
           mountPath: /tmp/alloy
+        # Workaround script for mimir.rules.kubernetes staying unhealthy after a restart
+        # see https://github.com/giantswarm/alloy-app/pull/311
+        - name: alloy-mimir-rules-liveness-probe
+          mountPath: /etc/alloy-mimir-rules-liveness-probe
+          readOnly: true
+
+    # -- Extra environment variables to pass to the Grafana Alloy container.
+    # The liveness probe below authenticates to Mimir with MIMIR_USERNAME and
+    # MIMIR_PASSWORD, which a release wires from its own Secret, for example:
+    #
+    #   extraEnv:
+    #     - name: MIMIR_USERNAME
+    #       valueFrom:
+    #         secretKeyRef:
+    #           name: alloy-metrics
+    #           key: metrics-username
+    #           optional: true
+    #     - name: MIMIR_PASSWORD
+    #       valueFrom:
+    #         secretKeyRef:
+    #           name: alloy-metrics
+    #           key: metrics-password
+    #           optional: true
+    #
+    # Without them the probe never restarts Alloy: a Mimir behind a gateway
+    # answers 401 to an unauthenticated request whether its ruler is up or down.
+    extraEnv: []
+
+    # -- Set livenessProbe for the Grafana Alloy container.
+    livenessProbe:
+      exec:
+        command:
+        - bash
+        - /etc/alloy-mimir-rules-liveness-probe/mimir-rules-liveness-probe.sh
+      initialDelaySeconds: 60
+      periodSeconds: 60
+      timeoutSeconds: 15
+      failureThreshold: 3
 
     # -- Resource requests and limits to apply to the Grafana Alloy container.
     resources:
@@ -99,6 +137,9 @@ alloy:
       extra:
         - name: alloy-tmp
           emptyDir: {}
+        - name: alloy-mimir-rules-liveness-probe
+          configMap:
+            name: alloy-mimir-rules-liveness-probe
 
   serviceMonitor:
     enabled: true
