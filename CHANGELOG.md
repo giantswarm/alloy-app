@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `crossplane.aws.iam.enabled`, rendering a Crossplane IAM Role for IRSA even while `alloy.enabled` is `false`. Off by default.
+
+### Changed
+
+- Upgrade Alloy upstream chart from 1.12.1 to 1.13.0 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md#1130-2026-09-25))
+  - This bumps the version of Alloy from 1.19.2 to 1.20.0 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/CHANGELOG.md#1200-2026-09-25)).
+  - Alloy Breaking changes
+    - [otelcol.processor.k8sattributes] Default label and annotation keys use the singular form (`k8s.pod.label.<key>`). `container.image.tags` replaces `container.image.tag`. `deployment_name_from_replicaset` is removed.
+    - [otelcol.processor.transform] `Base64Decode` is removed. `set(target, nil)` sets `target` to `nil`.
+    - See [Alloy v1.20.0](https://github.com/grafana/alloy/releases/tag/v1.20.0) release notes
+  - Update `prometheus-config-reloader` from v0.91.0 to v0.94.0.
+  - Add `controller.dnsConfig` and `service.trafficDistribution` values.
+
 ### Fixed
 
 - The `helm.sh/chart` label is valid for long chart versions: the 63-character cut trims the whole trailing run of `-`, `.` and `_`.
@@ -16,7 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Optional `serviceAccountTokenSecret.enabled` to render a long-lived service account token Secret.
-- Add `crossplane.aws.iam.enabled`, rendering a Crossplane IAM Role for IRSA even while `alloy.enabled` is `false`. Off by default.
 
 ## [0.23.0] - 2026-09-14
 
