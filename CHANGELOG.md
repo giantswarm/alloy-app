@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `crossplane.aws.iam.enabled`, rendering a Crossplane IAM Role for IRSA even while `alloy.enabled` is `false`. Off by default.
+
 ### Changed
 
 - Upgrade Alloy upstream chart from 1.12.1 to 1.13.0 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md#1130-2026-09-25))
@@ -27,7 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Optional `serviceAccountTokenSecret.enabled` to render a long-lived service account token Secret.
-- Add `crossplane.aws.iam.enabled`, rendering a Crossplane IAM Role for IRSA even while `alloy.enabled` is `false`. Off by default.
 
 ## [0.23.0] - 2026-09-14
 
