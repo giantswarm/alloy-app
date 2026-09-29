@@ -1,0 +1,60 @@
+{{- /*
+IRSA role for this release's ServiceAccount; see crossplane.aws.iam in values.yaml.
+Deliberately not gated on alloy.enabled.
+*/ -}}
+{{- $iam := .Values.crossplane.aws.iam }}
+{{- if $iam.enabled }}
+{{- $alloy := .Values.alloy | default dict }}
+{{- $sa := $alloy.serviceAccount | default dict }}
+{{- $saName := $sa.name | default (include "alloy-app.fullname" .) }}
+{{- $aud := ternary "sts.amazonaws.com.cn" "sts.amazonaws.com" (eq $iam.partition "aws-cn") }}
+apiVersion: iam.aws.upbound.io/v1beta1
+kind: Role
+metadata:
+  name: {{ required "crossplane.aws.iam.roleName is required" $iam.roleName }}
+  labels:
+    {{- include "alloy-app.disabledLabels" . | nindent 4 }}
+    app.kubernetes.io/component: iam
+  annotations:
+    crossplane.io/external-name: {{ $iam.roleName }}
+spec:
+  # A role trusted by name from another account is stored there by its unique ID, so a
+  # deleted and recreated role no longer matches and those trusts break silently.
+  deletionPolicy: Orphan
+  managementPolicies:
+    - "*"
+  providerConfigRef:
+    name: {{ required "crossplane.aws.iam.providerConfigRef is required" $iam.providerConfigRef }}
+  forProvider:
+    assumeRolePolicy: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Federated": "arn:{{ $iam.partition }}:iam::{{ required "crossplane.aws.iam.accountId is required" $iam.accountId }}:oidc-provider/{{ required "crossplane.aws.iam.oidcProvider is required" $iam.oidcProvider }}"
+            },
+            "Action": "sts:AssumeRoleWithWebIdentity",
+            "Condition": {
+              "StringEquals": {
+                "{{ $iam.oidcProvider }}:sub": "system:serviceaccount:{{ .Release.Namespace }}:{{ $saName }}",
+                "{{ $iam.oidcProvider }}:aud": "{{ $aud }}"
+              }
+            }
+          }
+        ]
+      }
+    {{- with $iam.policy }}
+    inlinePolicy:
+      - name: {{ $iam.roleName }}
+        policy: |
+          {{- . | trim | nindent 10 }}
+    {{- end }}
+    {{- with $iam.tags }}
+    tags:
+      {{- range $key, $value := . }}
+      {{ $key }}: {{ $value | quote }}
+      {{- end }}
+    {{- end }}
+{{- end }}

@@ -209,6 +209,52 @@
                 }
             }
         },
+        "crossplane": {
+            "type": "object",
+            "properties": {
+                "aws": {
+                    "type": "object",
+                    "properties": {
+                        "iam": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "roleName": {
+                                    "type": "string"
+                                },
+                                "accountId": {
+                                    "type": "string"
+                                },
+                                "oidcProvider": {
+                                    "type": "string"
+                                },
+                                "providerConfigRef": {
+                                    "type": "string"
+                                },
+                                "partition": {
+                                    "type": "string",
+                                    "enum": [
+                                        "aws",
+                                        "aws-cn"
+                                    ]
+                                },
+                                "policy": {
+                                    "type": "string"
+                                },
+                                "tags": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "global": {
             "type": "object",
             "properties": {
