@@ -22,6 +22,10 @@
 # upstream Alloy image, which ships neither curl nor jq. Both http:// and
 # https:// URLs are supported, the latter through `openssl s_client`.
 #
+# Responses are fed to grep through pipes, never here-strings: bash 5.2 writes
+# a here-string over 64 KiB to a temporary file, and the Alloy container
+# mounts /tmp read-only.
+#
 # Configuration (environment):
 #   ALLOY_URL         Alloy HTTP endpoint         (default http://localhost:12345)
 #   MIMIR_READY_PATH  Ruler reachability path     (default
@@ -193,7 +197,7 @@ ruler_get() {
 # opening quote of that value.
 json_string_after() {
 	local match
-	match=$(grep -o -- "$1"'[^"]*' <<<"$2")
+	match=$(printf '%s' "$2" | grep -o -- "$1"'[^"]*')
 	[[ -n $match ]] || return 1
 	match=${match%%$'\n'*}
 	printf '%s\n' "${match##*\"}"
@@ -210,7 +214,7 @@ if [[ ${components%%$'\n'*} != 200 ]]; then
 fi
 
 # Collect mimir.rules.kubernetes component IDs.
-ids=$(grep -o '"localID":"mimir\.rules\.kubernetes\.[^"]*"' <<<"$components" | cut -d'"' -f4 | sort -u)
+ids=$(printf '%s' "$components" | grep -o '"localID":"mimir\.rules\.kubernetes\.[^"]*"' | cut -d'"' -f4 | sort -u)
 if [[ -z $ids ]]; then
 	log "No mimir.rules.kubernetes component found"
 	exit 0
@@ -268,6 +272,6 @@ while read -r id; do
 	# This is the bug we work around, so exit non-zero to trigger an unhealthy liveness probe.
 	log "${id}: unhealthy while Mimir ruler ${ready_url} answers 200, Alloy needs a restart (grafana/alloy#6339)"
 	exit 1
-done <<<"$ids"
+done < <(printf '%s\n' "$ids")
 
 exit 0

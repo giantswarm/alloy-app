@@ -26,6 +26,11 @@ ruler=""
 # Environment given to the next run_case, reset after every case. RULER in a
 # value is replaced with the address of the ruler the mock ends up listening on.
 PROBE_ENV=()
+# Set to 1 to run the next run_case inside the Alloy image, reset after every case.
+PROBE_IN_IMAGE=0
+# The Alloy image the chart ships, run read-only like in the pod. Its bash and
+# its read-only /tmp are what the probe has to live with.
+ALLOY_IMAGE=${ALLOY_IMAGE:-gsoci.azurecr.io/giantswarm/alloy:$(grep -o '^appVersion: .*' "$HERE/../../helm/alloy/Chart.yaml" | cut -d' ' -f2)}
 
 start_mock() {
 	"$MOCK" "$@" >"$TMP/mock.log" 2>&1 &
@@ -65,18 +70,33 @@ run_case() {
 	local -a probe_env=()
 	shift 2
 
+	if ((PROBE_IN_IMAGE)) && ! command -v docker >/dev/null; then
+		printf 'SKIP  %-45s | docker is not available\n' "$name"
+		PROBE_ENV=()
+		PROBE_IN_IMAGE=0
+		return
+	fi
 	if ! start_mock "$@"; then
 		check "$name" "$want" "start-failed" ""
 		PROBE_ENV=()
+		PROBE_IN_IMAGE=0
 		return
 	fi
+	probe_env=("ALLOY_URL=http://$alloy")
 	for entry in "${PROBE_ENV[@]}"; do
 		probe_env+=("${entry//RULER/http://$ruler}")
 	done
-	out=$(env ALLOY_URL="http://$alloy" "${probe_env[@]}" bash "$PROBE" 2>&1)
+	if ((PROBE_IN_IMAGE)); then
+		out=$(docker run --rm --read-only --network host --entrypoint bash \
+			-v "$PROBE:/probe.sh:ro" "${probe_env[@]/#/--env=}" \
+			"$ALLOY_IMAGE" /probe.sh 2>&1)
+	else
+		out=$(env "${probe_env[@]}" bash "$PROBE" 2>&1)
+	fi
 	rc=$?
 	stop_mock
 	PROBE_ENV=()
+	PROBE_IN_IMAGE=0
 
 	check "$name" "$want" "$rc" "$out"
 }
@@ -130,6 +150,13 @@ run_case "unhealthy + chunked Alloy API" 1 \
 PROBE_ENV=("${CREDS[@]}")
 run_case "healthy + chunked Alloy API" 0 \
 	-chunked -component 'giantswarm=healthy=RULER'
+# A component carrying a large configuration makes the Alloy API responses
+# larger than 64 KiB, which bash 5.2 would buffer in a temporary file under the
+# read-only /tmp of the Alloy image.
+PROBE_ENV=("${CREDS[@]}")
+PROBE_IN_IMAGE=1
+run_case "unhealthy + 100 KiB Alloy API in Alloy image" 1 \
+	-chunked -original-size 102400 -component 'giantswarm=unhealthy=RULER'
 PROBE_ENV=("${CREDS[@]}")
 run_case "unknown health" 0 \
 	-component 'giantswarm=unknown=RULER'
