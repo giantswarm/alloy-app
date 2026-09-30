@@ -1,0 +1,25 @@
+# alloy-logexporter's case: the IRSA role renders while the rest of the chart is disabled.
+alloy:
+  enabled: false
+
+crossplane:
+  aws:
+    iam:
+      enabled: true
+      roleName: giantswarm-test-alloy-logexporter
+      accountId: "123456789012"
+      oidcProvider: irsa.test.example.com
+      providerConfigRef: test
+      policy: |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": ["sts:AssumeRole", "sts:TagSession"],
+              "Resource": "arn:aws:iam::*:role/giantswarm-logexport-*"
+            }
+          ]
+        }
+      tags:
+        installation: test

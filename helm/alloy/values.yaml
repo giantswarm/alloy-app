@@ -18,6 +18,29 @@ serviceWhenDisabled:
   # than just itself. No other alloy role needs this.
   enabled: false
 
+crossplane:
+  aws:
+    iam:
+      # -- Render a Crossplane IAM Role this release's ServiceAccount can assume through
+      # IRSA. Exists for `alloy-logexporter`: customers name this role in their own trust
+      # policies, and AWS rejects a trust policy naming a role that does not exist. So it is
+      # rendered even while `alloy.enabled` is false. Annotate
+      # `alloy.serviceAccount.annotations` with the role ARN separately.
+      enabled: false
+      # -- Role name. Required when enabled.
+      roleName: ""
+      # -- AWS account holding the role and the OIDC provider. Required when enabled.
+      accountId: ""
+      # -- Cluster IRSA issuer, without scheme, e.g. `irsa.<codename>.<base>`. Required when enabled.
+      oidcProvider: ""
+      # -- Crossplane AWS ProviderConfig. Required when enabled.
+      providerConfigRef: ""
+      # -- `aws`, or `aws-cn` for China regions.
+      partition: aws
+      # -- Inline policy document (JSON string). Empty grants nothing.
+      policy: ""
+      tags: {}
+
 # Enable Kyverno PolicyException
 kyvernoPolicyExceptions:
   enabled: true

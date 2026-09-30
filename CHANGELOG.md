@@ -11,6 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Optional `mimirRulesLivenessProbe.enabled` to render the liveness probe script restarting Alloy when a `mimir.rules.kubernetes` component is unhealthy while its Mimir ruler answers `200`, working around [grafana/alloy#6339](https://github.com/grafana/alloy/pull/6339).
 
+## [0.24.0] - 2026-09-29
+
+### Added
+
+- Add `crossplane.aws.iam.enabled`, rendering a Crossplane IAM Role for IRSA even while `alloy.enabled` is `false`. Off by default.
+
+### Changed
+
+- Upgrade Alloy upstream chart from 1.12.1 to 1.13.0 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md#1130-2026-09-25))
+  - This bumps the version of Alloy from 1.19.2 to 1.20.0 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/CHANGELOG.md#1200-2026-09-25)).
+  - Alloy Breaking changes
+    - [otelcol.processor.k8sattributes] Default label and annotation keys use the singular form (`k8s.pod.label.<key>`). `container.image.tags` replaces `container.image.tag`. `deployment_name_from_replicaset` is removed.
+    - [otelcol.processor.transform] `Base64Decode` is removed. `set(target, nil)` sets `target` to `nil`.
+    - See [Alloy v1.20.0](https://github.com/grafana/alloy/releases/tag/v1.20.0) release notes
+  - Update `prometheus-config-reloader` from v0.91.0 to v0.94.0.
+  - Add `controller.dnsConfig` and `service.trafficDistribution` values.
+
+### Fixed
+
+- The `helm.sh/chart` label is valid for long chart versions: the 63-character cut trims the whole trailing run of `-`, `.` and `_`.
+
 ## [0.23.1] - 2026-09-15
 
 ### Added
@@ -311,7 +332,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - changed: `app.giantswarm.io` label group was changed to `application.giantswarm.io`
 
-[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.23.1...HEAD
+[Unreleased]: https://github.com/giantswarm/alloy-app/compare/v0.24.0...HEAD
+[0.24.0]: https://github.com/giantswarm/alloy-app/compare/v0.23.1...v0.24.0
 [0.23.1]: https://github.com/giantswarm/alloy-app/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/giantswarm/alloy-app/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/giantswarm/alloy-app/compare/v0.21.2...v0.22.0
