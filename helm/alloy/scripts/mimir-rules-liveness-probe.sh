@@ -33,7 +33,7 @@
 #   MIMIR_USERNAME    Basic auth user for the ruler. Unset disables the check,
 #   MIMIR_PASSWORD    so that Alloy is never restarted on a 401 the probe
 #                     caused itself.
-#   HTTP_TIMEOUT      Per request timeout seconds (default 5)
+#   HTTP_TIMEOUT      Per request timeout seconds (default 20)
 
 set -uo pipefail
 shopt -s extglob
@@ -42,7 +42,7 @@ ALLOY_URL=${ALLOY_URL:-http://localhost:12345}
 MIMIR_READY_PATH=${MIMIR_READY_PATH:-/prometheus/config/v1/rules}
 MIMIR_USERNAME=${MIMIR_USERNAME:-}
 MIMIR_PASSWORD=${MIMIR_PASSWORD:-}
-HTTP_TIMEOUT=${HTTP_TIMEOUT:-5}
+HTTP_TIMEOUT=${HTTP_TIMEOUT:-20}
 
 # Set by ruler_get for the requests that go to Mimir rather than to Alloy, and
 # read back by http_request in the child process it re-execs.

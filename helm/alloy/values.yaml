@@ -95,7 +95,7 @@ mimirRulesLivenessProbe:
   #           - /etc/mimir-rules-liveness-probe/mimir-rules-liveness-probe.sh
   #         initialDelaySeconds: 60
   #         periodSeconds: 60
-  #         timeoutSeconds: 15
+  #         timeoutSeconds: 60
   #         failureThreshold: 3
   #     controller:
   #       volumes:
