@@ -57,9 +57,9 @@ serviceAccountTokenSecret:
   enabled: false
 
 mimirRulesLivenessProbe:
-  # -- Render the ConfigMap holding the liveness probe script that restarts Alloy when a
+  # -- Render the ConfigMap holding the liveness probe script. The script fails when a
   # `mimir.rules.kubernetes` component stays unhealthy while its Mimir ruler answers 200,
-  # working around https://github.com/grafana/alloy/pull/6339.
+  # so Kubernetes restarts Alloy. This works around https://github.com/grafana/alloy/pull/6339.
   # The ConfigMap is rendered as `<release>-mimir-rules-liveness-probe`. Mounting it and
   # running it is left to the release, because Helm replaces these lists instead of
   # merging them:

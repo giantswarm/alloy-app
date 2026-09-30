@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Optional `mimirRulesLivenessProbe.enabled` to render the liveness probe script restarting Alloy when a `mimir.rules.kubernetes` component is unhealthy while its Mimir ruler answers `200`, working around [grafana/alloy#6339](https://github.com/grafana/alloy/pull/6339).
+- Optional `mimirRulesLivenessProbe.enabled` to render the liveness probe script. The script fails when a `mimir.rules.kubernetes` component is unhealthy while its Mimir ruler answers `200`, so Kubernetes restarts Alloy. This works around [grafana/alloy#6339](https://github.com/grafana/alloy/pull/6339).
 
 ## [0.24.0] - 2026-09-29
 
