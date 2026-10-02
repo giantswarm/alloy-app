@@ -30,13 +30,14 @@ CHART_ALL_FEATURES := \
 	--set 'podLogs[0].spec.selector.matchLabels.app=test' \
 	--set 'alloy.alloy.extraSecretEnv[0].name=TEST' \
 	--set 'alloy.alloy.extraSecretEnv[0].value=test' \
-	--set 'vcenterReceiver.enabled=true'
+	--set 'vcenterReceiver.enabled=true' \
+	--set 'mimirRulesLivenessProbe.enabled=true'
 
 # Objects the chart must produce when it is enabled. Guards against a gate that is
 # accidentally always false, which would pass the disabled check for the wrong reason.
-CHART_EXPECTED_KINDS := CiliumNetworkPolicy PolicyException VerticalPodAutoscaler PodLogs Secret DaemonSet Role RoleBinding
+CHART_EXPECTED_KINDS := CiliumNetworkPolicy PolicyException VerticalPodAutoscaler PodLogs Secret ConfigMap DaemonSet Role RoleBinding
 
-.PHONY: test-chart test-chart-render test-chart-disabled chart-deps
+.PHONY: test-chart test-chart-render test-chart-disabled chart-deps test-liveness-probe
 
 test-chart: test-chart-render test-chart-disabled ## Run all chart rendering tests.
 
@@ -65,3 +66,9 @@ test-chart-disabled: chart-deps ## Assert `alloy.enabled=false` renders nothing 
 		printf '%s\n' "$$out" | grep -q "^kind: $$kind$$" || { echo "FAIL: expected 'kind: $$kind' in the enabled render"; exit 1; }; \
 	done
 	@echo "PASS"
+
+##@ Script tests
+
+test-liveness-probe: ## Run helm/alloy/scripts/mimir-rules-liveness-probe.sh against a mock Alloy API and Mimir ruler.
+	@echo "====> $@"
+	@tests/liveness-probe/run-tests.sh

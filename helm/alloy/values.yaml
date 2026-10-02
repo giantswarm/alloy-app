@@ -56,6 +56,13 @@ serviceAccountTokenSecret:
   # authenticate with. Only needed by the instance that scrapes them.
   enabled: false
 
+mimirRulesLivenessProbe:
+  # -- Render the `<release>-mimir-rules-liveness-probe` ConfigMap holding a liveness probe script.
+  # The script fails when a `mimir.rules.kubernetes` component is unhealthy while its Mimir ruler
+  # answers 200, so Kubernetes restarts Alloy. This works around https://github.com/grafana/alloy/pull/6339.
+  # The release mounts the ConfigMap and sets the liveness probe, see examples/mimir-rules-liveness-probe.
+  enabled: false
+
 alloy:
   # Setting this to "false" makes the whole chart render nothing: it disables both the
   # upstream Alloy chart and all Giant Swarm additions (NetworkPolicy, Kyverno

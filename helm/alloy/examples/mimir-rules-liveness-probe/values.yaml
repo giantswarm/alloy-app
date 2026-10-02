@@ -1,0 +1,44 @@
+# Runs the mimir.rules.kubernetes liveness probe on an Alloy release named alloy-metrics.
+# Helm replaces the extra mounts and volumes lists, so the chart's alloy-tmp entries are repeated.
+mimirRulesLivenessProbe:
+  enabled: true
+alloy:
+  alloy:
+    mounts:
+      extra:
+      - name: alloy-tmp
+        mountPath: /tmp/alloy
+      - name: mimir-rules-liveness-probe
+        mountPath: /etc/mimir-rules-liveness-probe
+        readOnly: true
+    # Credentials for a Mimir behind a gateway.
+    extraEnv:
+    - name: MIMIR_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: alloy-metrics
+          key: metrics-username
+          optional: true
+    - name: MIMIR_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: alloy-metrics
+          key: metrics-password
+          optional: true
+    livenessProbe:
+      exec:
+        command:
+        - bash
+        - /etc/mimir-rules-liveness-probe/mimir-rules-liveness-probe.sh
+      initialDelaySeconds: 60
+      periodSeconds: 60
+      timeoutSeconds: 60
+      failureThreshold: 3
+  controller:
+    volumes:
+      extra:
+      - name: alloy-tmp
+        emptyDir: {}
+      - name: mimir-rules-liveness-probe
+        configMap:
+          name: alloy-metrics-mimir-rules-liveness-probe

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Optional `mimirRulesLivenessProbe.enabled` as workaround for [grafana/alloy#6339](https://github.com/grafana/alloy/pull/6339).
+
 ## [0.24.0] - 2026-09-29
 
 ### Added
