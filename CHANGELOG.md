@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Optional `mimirRulesLivenessProbe.enabled` as workaround for [grafana/alloy#6339](https://github.com/grafana/alloy/pull/6339).
+  - `PROBE_TIMEOUT` bounds one probe run.
+  - `UNHEALTHY_MESSAGE_PATTERN` selects the health messages that restart Alloy. A rejected rule never restarts Alloy.
 
 ## [0.24.0] - 2026-09-29
 
