@@ -7,8 +7,13 @@
 # again. Restarting Alloy once the ruler is back fixes it.
 #
 # This probe discovers every mimir.rules.kubernetes component through the Alloy
-# API, and exits non-zero as soon as one of them is unhealthy while its own
-# Mimir ruler answers 200 on the ruler config API.
+# API, and exits non-zero as soon as one of them is unhealthy with a health
+# message matching UNHEALTHY_MESSAGE_PATTERN while its own Mimir ruler answers
+# 200 on the ruler config API. The default pattern matches the failed rule
+# listing that latches the component, never a rule Mimir rejects, so a bad
+# PrometheusRule never restarts Alloy. A rule listing that fails in the running
+# component, after its retries, shows the same message and may restart Alloy
+# once. That component recovers on its own, so the restart never loops.
 #
 # The ruler is queried with the same credentials and tenant as the component
 # itself uses. Without them a Mimir behind a gateway answers 401 at the edge,
@@ -17,6 +22,10 @@
 #
 # Anything else (Alloy API down, no such component, ruler unreachable) exits 0:
 # the probe only ever triggers a restart for the bug it works around.
+#
+# One probe run never takes longer than PROBE_TIMEOUT: each request is bounded
+# by what is left of it, and the probe exits 0 once it is spent. Set it below
+# the kubelet timeoutSeconds, which counts a probe timeout as a failure.
 #
 # Only bash builtins, coreutils and openssl are used, so it runs as-is in the
 # upstream Alloy image, which ships neither curl nor jq. Both http:// and
@@ -34,6 +43,10 @@
 #   MIMIR_PASSWORD    so that Alloy is never restarted on a 401 the probe
 #                     caused itself.
 #   HTTP_TIMEOUT      Per request timeout seconds (default 20)
+#   PROBE_TIMEOUT     Probe run timeout seconds   (default 50)
+#   UNHEALTHY_MESSAGE_PATTERN
+#                     grep -E pattern the health message must match (default
+#                     ^(error GET [^ ]*|Get "[^"]*)/rules[":])
 
 set -uo pipefail
 shopt -s extglob
@@ -43,6 +56,8 @@ MIMIR_READY_PATH=${MIMIR_READY_PATH:-/prometheus/config/v1/rules}
 MIMIR_USERNAME=${MIMIR_USERNAME:-}
 MIMIR_PASSWORD=${MIMIR_PASSWORD:-}
 HTTP_TIMEOUT=${HTTP_TIMEOUT:-20}
+PROBE_TIMEOUT=${PROBE_TIMEOUT:-50}
+UNHEALTHY_MESSAGE_PATTERN=${UNHEALTHY_MESSAGE_PATTERN:-'^(error GET [^ ]*|Get "[^"]*)/rules[":]'}
 
 # Set by ruler_get for the requests that go to Mimir rather than to Alloy, and
 # read back by http_request in the child process it re-execs.
@@ -176,34 +191,55 @@ if [[ ${1:-} == --http-get ]]; then
 	exit $?
 fi
 
+# check_time_left
+#
+# Exits 0 once PROBE_TIMEOUT is spent, before the kubelet times the probe out.
+check_time_left() {
+	((SECONDS < PROBE_TIMEOUT)) && return 0
+	log "Probe timeout of ${PROBE_TIMEOUT}s reached, skipping check"
+	exit 0
+}
+
+# request_timeout
+#
+# Prints HTTP_TIMEOUT, capped to what is left of PROBE_TIMEOUT.
+request_timeout() {
+	local left=$((PROBE_TIMEOUT - SECONDS))
+	((left < HTTP_TIMEOUT)) || left=$HTTP_TIMEOUT
+	printf '%s\n' "$left"
+}
+
 # http_get URL
 #
 # Same output as raw_http_get, but runs it in a child process bounded by
-# HTTP_TIMEOUT. Returns non-zero when the request failed or timed out.
+# request_timeout. Returns non-zero when the request failed or timed out.
 http_get() {
-	timeout "$HTTP_TIMEOUT" bash "$0" --http-get "$1"
+	timeout "$(request_timeout)" bash "$0" --http-get "$1"
 }
 
 # ruler_get URL TENANT
 #
 # Same as http_get, with the credentials and the tenant the component uses.
 ruler_get() {
-	PROBE_AUTH=1 PROBE_TENANT=$2 timeout "$HTTP_TIMEOUT" bash "$0" --http-get "$1"
+	PROBE_AUTH=1 PROBE_TENANT=$2 timeout "$(request_timeout)" bash "$0" --http-get "$1"
 }
 
 # json_string_after PATTERN JSON
 #
 # Prints the first JSON string value matching PATTERN, which must end with the
-# opening quote of that value.
+# opening quote of that value. Escaped quotes and backslashes are decoded.
 json_string_after() {
 	local match
-	match=$(printf '%s' "$2" | grep -o -- "$1"'[^"]*')
+	match=$(printf '%s' "$2" | grep -o -- "$1"'\([^"\\]\|\\.\)*')
 	[[ -n $match ]] || return 1
 	match=${match%%$'\n'*}
-	printf '%s\n' "${match##*\"}"
+	match=${match:${#1}}
+	match=${match//\\\"/\"}
+	printf '%s\n' "${match//\\\\/\\}"
 }
 
 # List Alloy components
+check_time_left
 components=$(http_get "${ALLOY_URL%/}/api/v0/web/components") || {
 	log "Alloy API is unreachable, skipping check"
 	exit 0
@@ -223,6 +259,7 @@ fi
 # Probe each component to detect if one is unhealthy while its Mimir ruler is ready.
 while read -r id; do
 	# Read the component detail, which carries its health and its arguments.
+	check_time_left
 	detail=$(http_get "${ALLOY_URL%/}/api/v0/web/components/${id}") || {
 		log "${id}: component API is unreachable, skipping"
 		continue
@@ -236,6 +273,13 @@ while read -r id; do
 	health=$(json_string_after '"health":{"state":"' "$detail") || health=""
 	if [[ $health != unhealthy ]]; then
 		log "${id}: ${health:-unknown health}"
+		continue
+	fi
+
+	# Only the failed rule listing latches the component, a rejected rule does not.
+	message=$(json_string_after '"health":{"state":"unhealthy","message":"' "$detail") || message=""
+	if ! printf '%s\n' "$message" | grep -E -- "$UNHEALTHY_MESSAGE_PATTERN" >/dev/null; then
+		log "${id}: unhealthy but its health message does not match the latch, skipping: ${message}"
 		continue
 	fi
 
@@ -258,6 +302,7 @@ while read -r id; do
 	fi
 
 	# Only a 200 proves the ruler is back. Anything else leaves Alloy alone.
+	check_time_left
 	ready=$(ruler_get "$ready_url" "$tenant") || {
 		log "${id}: unhealthy but Mimir ruler ${ready_url} is unreachable, skipping"
 		continue

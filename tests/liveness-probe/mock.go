@@ -81,6 +81,8 @@ func main() {
 	rulerAuth := flag.String("ruler-auth", "", "basic auth user:password the ruler config API requires, empty to require none")
 	rulerTenant := flag.String("ruler-tenant", "", "X-Scope-OrgID the ruler config API requires, empty to require none")
 	hang := flag.Bool("hang", false, "accept requests on the Alloy API but never answer them")
+	rulerHang := flag.Bool("ruler-hang", false, "accept requests on the ruler config API but never answer them")
+	message := flag.String("message", "error GET /prometheus/config/v1/rules: server returned HTTP status 503 Service Unavailable", "health message reported for every component")
 	tenantID := flag.String("tenant-id", "anonymous", "tenant_id argument reported for every component")
 	chunked := flag.Bool("chunked", false, "flush the Alloy API responses, so they are framed as chunked")
 	original := flag.Int("original-size", 0, "size in bytes of the original configuration reported for every component")
@@ -121,7 +123,7 @@ func main() {
 			Label:        parts[0],
 			References:   []string{},
 			ReferencedBy: []string{},
-			Health:       &health{State: parts[1], Message: "boom", UpdatedTime: "2026-09-01T00:00:00Z"},
+			Health:       &health{State: parts[1], Message: *message, UpdatedTime: "2026-09-01T00:00:00Z"},
 			Original:     strings.Repeat("x", *original),
 			Arguments: []jsonAttr{
 				{Name: "address", Type: "attr", Value: jsonValue{Type: "string", Value: address}},
@@ -158,6 +160,10 @@ func main() {
 
 	ruler := http.NewServeMux()
 	ruler.HandleFunc(rulerRulesPath, func(w http.ResponseWriter, r *http.Request) {
+		if *rulerHang {
+			<-r.Context().Done()
+			return
+		}
 		// A Mimir behind a gateway answers 401 at the edge, without ever
 		// asking the ruler, so an unauthenticated request says nothing about
 		// whether the ruler is up.

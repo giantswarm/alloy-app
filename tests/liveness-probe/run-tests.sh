@@ -172,6 +172,54 @@ PROBE_ENV=("${CREDS[@]}")
 run_case "address with a hostname" 1 \
 	-component 'giantswarm=unhealthy=RULER_LOCALHOST'
 
+# The health message tells the latch from a rule Mimir rejects, which a restart
+# would not fix. Messages are the ones mimir.rules.kubernetes reports.
+PROBE_ENV=("${CREDS[@]}")
+run_case "latch: GET rules answered 504" 1 \
+	-message 'error GET /prometheus/config/v1/rules: 504 Gateway Timeout: upstream request timeout' \
+	-component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}")
+run_case "latch: GET rules TLS handshake timeout" 1 \
+	-message 'Get "https://mimir.example/prometheus/config/v1/rules": net/http: TLS handshake timeout' \
+	-component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}")
+run_case "rule rejected by Mimir (400)" 0 \
+	-message $'1 error occurred:\n\t* error POST /prometheus/config/v1/rules/ns: unrecoverable error response: server returned HTTP status 400 Bad Request: bad rule' \
+	-component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}" 'UNHEALTHY_MESSAGE_PATTERN=error POST')
+run_case "rule rejected, custom message pattern" 1 \
+	-message $'1 error occurred:\n\t* error POST /prometheus/config/v1/rules/ns: unrecoverable error response: server returned HTTP status 400 Bad Request: bad rule' \
+	-component 'giantswarm=unhealthy=RULER'
+
+# run_timed NAME WANT_RC MAX_SECONDS [mock args...]
+#
+# Runs run_case and checks it finished within MAX_SECONDS.
+run_timed() {
+	local name=$1 want=$2 max=$3 before elapsed
+	shift 3
+	before=$(date +%s)
+	run_case "$name" "$want" "$@"
+	elapsed=$(($(date +%s) - before))
+	if [[ $elapsed -le $max ]]; then
+		printf 'PASS  %-45s | %ss\n' "$name gives up on time" "$elapsed"
+	else
+		printf 'FAIL  %-45s | %ss\n' "$name gives up on time" "$elapsed"
+		failures=$((failures + 1))
+	fi
+}
+
+# Requests to several hung rulers add up. The probe stops at PROBE_TIMEOUT, as
+# the kubelet counts a probe timeout as a failure.
+PROBE_ENV=("${CREDS[@]}" HTTP_TIMEOUT=2 PROBE_TIMEOUT=3)
+run_timed "three hung rulers" 0 4 -ruler-hang \
+	-component 'a=unhealthy=RULER' \
+	-component 'b=unhealthy=RULER' \
+	-component 'c=unhealthy=RULER'
+# A single request never outlives PROBE_TIMEOUT.
+PROBE_ENV=("${CREDS[@]}" HTTP_TIMEOUT=20 PROBE_TIMEOUT=2)
+run_timed "hung ruler, short probe timeout" 0 3 -ruler-hang \
+	-component 'giantswarm=unhealthy=RULER'
+
 # An Alloy API that accepts the connection but never answers must be given up
 # on rather than time the probe out, which Kubernetes counts as a failure.
 before=$(date +%s)
