@@ -92,6 +92,9 @@ func main() {
 	chunked := flag.Bool("chunked", false, "flush the Alloy API responses, so they are framed as chunked")
 	original := flag.Int("original-size", 0, "size in characters of the original configuration reported for every component")
 	originalChar := flag.String("original-char", "x", "character the original configuration is made of")
+	updatedAgo := flag.Duration("updated-ago", time.Hour, "age of the health reported for every component")
+	updatedTime := flag.String("updated-time", "", "health updatedTime reported for every component, overrides -updated-ago")
+	syncInterval := flag.String("sync-interval", "", "sync_interval argument reported for every component, empty to leave it out like Alloy does at its default")
 	flag.Var(&comps, "component", "mimir.rules.kubernetes component to serve, as label=health=address[=tenant]")
 	flag.Parse()
 
@@ -113,6 +116,11 @@ func main() {
 	}
 	rulerAddr := rulerListener.Addr().String()
 	rulerTLSAddr := rulerTLSListener.Addr().String()
+
+	updated := *updatedTime
+	if updated == "" {
+		updated = time.Now().UTC().Add(-*updatedAgo).Format(time.RFC3339Nano)
+	}
 
 	details := map[string]componentDetail{}
 	var list []componentDetail
@@ -138,12 +146,15 @@ func main() {
 			Label:        parts[0],
 			References:   []string{},
 			ReferencedBy: []string{},
-			Health:       &health{State: parts[1], Message: *message, UpdatedTime: "2026-09-01T00:00:00Z"},
+			Health:       &health{State: parts[1], Message: *message, UpdatedTime: updated},
 			Original:     strings.Repeat(*originalChar, *original),
 			Arguments: []jsonAttr{
 				{Name: "address", Type: "attr", Value: jsonValue{Type: "string", Value: address}},
 				{Name: "tenant_id", Type: "attr", Value: jsonValue{Type: "string", Value: tenant}},
 			},
+		}
+		if *syncInterval != "" {
+			d.Arguments = append(d.Arguments, jsonAttr{Name: "sync_interval", Type: "attr", Value: jsonValue{Type: "string", Value: *syncInterval}})
 		}
 		details[d.LocalID] = d
 		list = append(list, d)

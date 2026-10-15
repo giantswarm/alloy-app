@@ -285,15 +285,6 @@ run_case "rule rejected, custom message pattern" 1 \
 	-message $'1 error occurred:\n\t* error POST /prometheus/config/v1/rules/ns: unrecoverable error response: server returned HTTP status 400 Bad Request: bad rule' \
 	-component 'giantswarm=unhealthy=RULER'
 
-# A timeout that is not a positive number of seconds is a configuration error,
-# which must never restart Alloy. `timeout 0` would also disable the timeout.
-for setting in HTTP_TIMEOUT=0 HTTP_TIMEOUT=abc HTTP_TIMEOUT=1.5 PROBE_TIMEOUT=0 PROBE_TIMEOUT=-5 PROBE_TIMEOUT=08; do
-	PROBE_ENV=("${CREDS[@]}" "$setting")
-	run_case "invalid ${setting}" 0 \
-		-component 'giantswarm=unhealthy=RULER'
-	check_log "invalid ${setting} is logged" "^${setting%%=*}=.* is not"
-done
-
 # check_ruler_requests NAME WANT
 #
 # Checks the mock of the last run_case received WANT ruler requests.
@@ -308,6 +299,84 @@ check_ruler_requests() {
 		failures=$((failures + 1))
 	fi
 }
+
+# The latch freezes the health. A rule listing that fails in the running
+# component shows the same message, refreshed at least every sync_interval,
+# 5m0s when Alloy leaves it out. Without a ruler request for a fresh health.
+PROBE_ENV=("${CREDS[@]}")
+run_case "latch message, health 30s old" 0 -updated-ago 30s \
+	-component 'giantswarm=unhealthy=RULER'
+check_log "latch message, health 30s old is logged" ": unhealthy for (29|30|31)s, below 360s, skipping$"
+check_ruler_requests "latch message, health 30s old, no ruler query" 0
+PROBE_ENV=("${CREDS[@]}")
+run_case "latch message, health 350s old" 0 -updated-ago 350s \
+	-component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}")
+run_case "latch message, health 370s old" 1 -updated-ago 370s \
+	-component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}")
+run_case "sync_interval 30s, health 120s old" 1 -sync-interval 30s -updated-ago 120s \
+	-component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}")
+run_case "sync_interval 30s, health 80s old" 0 -sync-interval 30s -updated-ago 80s \
+	-component 'giantswarm=unhealthy=RULER'
+check_log "sync_interval 30s, health 80s old is logged" ", below 90s, skipping$"
+PROBE_ENV=("${CREDS[@]}")
+run_case "sync_interval 1m30s, health 160s old" 1 -sync-interval 1m30s -updated-ago 160s \
+	-component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}")
+run_case "sync_interval 1.5s, health 70s old" 1 -sync-interval 1.5s -updated-ago 70s \
+	-component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}" HEALTH_AGE_MARGIN=1)
+run_case "sync_interval 1.5s, margin 1s, health 2s old" 0 -sync-interval 1.5s -updated-ago 2s \
+	-component 'giantswarm=unhealthy=RULER'
+check_log "sync_interval 1.5s is rounded up to 2s" ", below 3s, skipping$"
+PROBE_ENV=("${CREDS[@]}")
+run_case "sync_interval 1h0m0s, health 30m old" 0 -sync-interval 1h0m0s -updated-ago 30m \
+	-component 'giantswarm=unhealthy=RULER'
+check_log "sync_interval 1h0m0s, health 30m old is logged" ", below 3660s, skipping$"
+PROBE_ENV=("${CREDS[@]}")
+run_case "sync_interval 1h0m0s, health 2h old" 1 -sync-interval 1h0m0s -updated-ago 2h \
+	-component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}" HEALTH_AGE_MARGIN=600)
+run_case "margin 600s, health 400s old" 0 -updated-ago 400s \
+	-component 'giantswarm=unhealthy=RULER'
+check_log "margin 600s, health 400s old is logged" ", below 900s, skipping$"
+# Alloy renders updatedTime in the local zone of the pod, nanoseconds included.
+PROBE_ENV=("${CREDS[@]}")
+run_case "health 30s old, -07:00 offset" 0 \
+	-updated-time "$(TZ=America/Los_Angeles date -d '-30 sec' +%Y-%m-%dT%H:%M:%S.%N%:z)" \
+	-component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}")
+run_case "health 1h old, +05:30 offset" 1 \
+	-updated-time "$(TZ=Asia/Kolkata date -d '-1 hour' +%Y-%m-%dT%H:%M:%S.%N%:z)" \
+	-component 'giantswarm=unhealthy=RULER'
+PROBE_ENV=("${CREDS[@]}")
+run_case "health in the future" 0 -updated-ago -1h \
+	-component 'giantswarm=unhealthy=RULER'
+# An age that cannot be told never restarts Alloy.
+for updated in 'yesterday at noon-ish' '2026-13-45T00:00:00Z'; do
+	PROBE_ENV=("${CREDS[@]}")
+	run_case "unparsable updatedTime ${updated}" 0 -updated-time "$updated" \
+		-component 'giantswarm=unhealthy=RULER'
+	check_log "unparsable updatedTime ${updated} is logged" "health update time .* could not be read, skipping$"
+done
+for interval in forever 5m0 500ms; do
+	PROBE_ENV=("${CREDS[@]}")
+	run_case "unparsable sync_interval ${interval}" 0 -sync-interval "$interval" \
+		-component 'giantswarm=unhealthy=RULER'
+	check_log "unparsable sync_interval ${interval} is logged" "sync_interval \"${interval}\" could not be read, skipping$"
+done
+
+# A timeout that is not a positive number of seconds is a configuration error,
+# which must never restart Alloy. `timeout 0` would also disable the timeout.
+for setting in HTTP_TIMEOUT=0 HTTP_TIMEOUT=abc HTTP_TIMEOUT=1.5 PROBE_TIMEOUT=0 PROBE_TIMEOUT=-5 PROBE_TIMEOUT=08 \
+	HEALTH_AGE_MARGIN=0 HEALTH_AGE_MARGIN=abc HEALTH_AGE_MARGIN=08 HEALTH_AGE_MARGIN=1000000; do
+	PROBE_ENV=("${CREDS[@]}" "$setting")
+	run_case "invalid ${setting}" 0 \
+		-component 'giantswarm=unhealthy=RULER'
+	check_log "invalid ${setting} is logged" "^${setting%%=*}=.* is not"
+done
 
 # Components sharing a ruler, a tenant and the credentials share one request.
 PROBE_ENV=("${CREDS[@]}")

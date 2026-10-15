@@ -12,10 +12,13 @@
 # 200 on the ruler config API. The default pattern matches the failed rule
 # listing that latches the component: a 5xx or a 429, or no answer at all.
 # It never matches a rule Mimir rejects, an invalid rule, or a 4xx, which a
-# restart does not fix, so a bad PrometheusRule never restarts Alloy. A rule
-# listing that fails in the running component, after its retries, shows the
-# same message and may restart Alloy once. That component recovers on its own,
-# so the restart never loops.
+# restart does not fix, so a bad PrometheusRule never restarts Alloy.
+#
+# A rule listing that fails in the running component shows the same message,
+# but the component refreshes its health at least every sync_interval, where
+# the latch freezes it. A component is only a candidate once its health is
+# older than its sync_interval plus HEALTH_AGE_MARGIN, which is checked before
+# the ruler is queried.
 #
 # The ruler is queried with the same credentials and tenant as the component
 # itself uses. Without them a Mimir behind a gateway answers 401 at the edge,
@@ -49,8 +52,10 @@
 #                     caused itself.
 #   HTTP_TIMEOUT      Per request timeout seconds (default 20)
 #   PROBE_TIMEOUT     Probe run timeout seconds   (default 50)
-#                     Both are whole seconds from 1 to 999999. Any other value
-#                     skips the check.
+#   HEALTH_AGE_MARGIN Seconds the health must be older than the component
+#                     sync_interval              (default 60)
+#                     All three are whole seconds from 1 to 999999. Any other
+#                     value skips the check.
 #   UNHEALTHY_MESSAGE_PATTERN
 #                     grep -E pattern the health message must match (default
 #                     ^(error GET [^ ]*/rules: server returned HTTP status
@@ -68,6 +73,7 @@ MIMIR_USERNAME=${MIMIR_USERNAME:-}
 MIMIR_PASSWORD=${MIMIR_PASSWORD:-}
 HTTP_TIMEOUT=${HTTP_TIMEOUT:-20}
 PROBE_TIMEOUT=${PROBE_TIMEOUT:-50}
+HEALTH_AGE_MARGIN=${HEALTH_AGE_MARGIN:-60}
 UNHEALTHY_MESSAGE_PATTERN=${UNHEALTHY_MESSAGE_PATTERN:-'^(error GET [^ ]*/rules: server returned HTTP status (429|5[0-9]{2}) |Get "[^"]*/rules": )'}
 
 # Set by ruler_get for the requests that go to Mimir rather than to Alloy, and
@@ -207,7 +213,7 @@ fi
 
 # A bad setting leaves Alloy alone, like any other failure of the probe. Bash
 # arithmetic reads 08 as octal, and `timeout 0` never times out.
-for setting in HTTP_TIMEOUT PROBE_TIMEOUT; do
+for setting in HTTP_TIMEOUT PROBE_TIMEOUT HEALTH_AGE_MARGIN; do
 	if [[ ! ${!setting} =~ ^[1-9][0-9]{0,5}$ ]]; then
 		log "${setting}=${!setting} is not a whole number of seconds between 1 and 999999, skipping check"
 		exit 0
@@ -274,6 +280,15 @@ json_string_after() {
 	printf '%s\n' "${match//\\\\/\\}"
 }
 
+# duration_seconds DURATION
+#
+# Prints a Go duration the way Alloy renders it (5m0s, 30s, 1h0m0s, 1.5s) in
+# whole seconds, rounded up. Returns non-zero on any other form.
+duration_seconds() {
+	[[ -n $1 && $1 =~ ^(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)(\.[0-9]+)?s)?$ ]] || return 1
+	printf '%d\n' $((10#${BASH_REMATCH[2]:-0} * 3600 + 10#${BASH_REMATCH[4]:-0} * 60 + 10#${BASH_REMATCH[6]:-0} + (${#BASH_REMATCH[7]} > 0)))
+}
+
 # List Alloy components
 check_time_left
 components=$(http_get "${ALLOY_URL%/}/api/v0/web/components") || {
@@ -320,6 +335,26 @@ while read -r id; do
 	message=$(json_string_after '"health":{"state":"unhealthy","message":"' "$detail") || message=""
 	if ! printf '%s\n' "$message" | grep -E -- "$UNHEALTHY_MESSAGE_PATTERN" >/dev/null; then
 		log "${id}: unhealthy but its health message does not match the latch, skipping: ${message}"
+		continue
+	fi
+
+	# The latch freezes the health, which the running component refreshes at
+	# least every sync_interval. Alloy leaves sync_interval out at its 5m0s
+	# default.
+	updated_time=$(json_string_after '"updatedTime":"' "$detail") || updated_time=""
+	if [[ -z $updated_time ]] || ! updated=$(date -d "$updated_time" +%s 2>/dev/null); then
+		log "${id}: unhealthy but its health update time \"${updated_time}\" could not be read, skipping"
+		continue
+	fi
+	sync_interval=$(json_string_after '"name":"sync_interval","type":"attr","value":{"type":"string","value":"' "$detail") || sync_interval=5m0s
+	if ! interval=$(duration_seconds "$sync_interval"); then
+		log "${id}: unhealthy but its sync_interval \"${sync_interval}\" could not be read, skipping"
+		continue
+	fi
+	age=$((${EPOCHREALTIME%.*} - updated))
+	threshold=$((interval + HEALTH_AGE_MARGIN))
+	if ((age <= threshold)); then
+		log "${id}: unhealthy for ${age}s, below ${threshold}s, skipping"
 		continue
 	fi
 
