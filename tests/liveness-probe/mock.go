@@ -85,7 +85,8 @@ func main() {
 	message := flag.String("message", "error GET /prometheus/config/v1/rules: server returned HTTP status 503 Service Unavailable", "health message reported for every component")
 	tenantID := flag.String("tenant-id", "anonymous", "tenant_id argument reported for every component")
 	chunked := flag.Bool("chunked", false, "flush the Alloy API responses, so they are framed as chunked")
-	original := flag.Int("original-size", 0, "size in bytes of the original configuration reported for every component")
+	original := flag.Int("original-size", 0, "size in characters of the original configuration reported for every component")
+	originalChar := flag.String("original-char", "x", "character the original configuration is made of")
 	flag.Var(&comps, "component", "mimir.rules.kubernetes component to serve, as label=health=address")
 	flag.Parse()
 
@@ -124,7 +125,7 @@ func main() {
 			References:   []string{},
 			ReferencedBy: []string{},
 			Health:       &health{State: parts[1], Message: *message, UpdatedTime: "2026-09-01T00:00:00Z"},
-			Original:     strings.Repeat("x", *original),
+			Original:     strings.Repeat(*originalChar, *original),
 			Arguments: []jsonAttr{
 				{Name: "address", Type: "attr", Value: jsonValue{Type: "string", Value: address}},
 				{Name: "tenant_id", Type: "attr", Value: jsonValue{Type: "string", Value: *tenantID}},
@@ -224,8 +225,8 @@ func portOf(addr string) string {
 }
 
 // writeJSON mimics Alloy's CompressionHandler: gzip when the client asks for it.
-// Flushing first leaves the response without a Content-Length, so that Go frames
-// it in chunks the way Alloy does for its larger payloads.
+// Flushing leaves the response without a Content-Length, so that Go frames it
+// in chunks the way Alloy does for its larger payloads, one per 1 KiB flushed.
 func writeJSON(w http.ResponseWriter, r *http.Request, chunked bool, v any) {
 	b, err := json.Marshal(v)
 	if err != nil {
@@ -243,6 +244,13 @@ func writeJSON(w http.ResponseWriter, r *http.Request, chunked bool, v any) {
 		defer gz.Close()
 		_, _ = gz.Write(b)
 		return
+	}
+	if chunked {
+		for len(b) > 1024 {
+			_, _ = w.Write(b[:1024])
+			w.(http.Flusher).Flush()
+			b = b[1024:]
+		}
 	}
 	_, _ = w.Write(b)
 }

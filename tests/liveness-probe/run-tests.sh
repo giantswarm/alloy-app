@@ -150,6 +150,10 @@ run_case "unhealthy + chunked Alloy API" 1 \
 PROBE_ENV=("${CREDS[@]}")
 run_case "healthy + chunked Alloy API" 0 \
 	-chunked -component 'giantswarm=healthy=RULER'
+# Chunk sizes count bytes, which a UTF-8 locale would read as characters.
+PROBE_ENV=("${CREDS[@]}" LC_ALL=C.UTF-8)
+run_case "unhealthy + chunked UTF-8 Alloy API" 1 \
+	-chunked -original-size 4096 -original-char 'é' -component 'giantswarm=unhealthy=RULER'
 # A component carrying a large configuration makes the Alloy API responses
 # larger than 64 KiB, which bash 5.2 would buffer in a temporary file under the
 # read-only /tmp of the Alloy image.

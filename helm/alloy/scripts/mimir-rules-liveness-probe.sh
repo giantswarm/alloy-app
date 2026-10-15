@@ -50,6 +50,9 @@
 
 set -uo pipefail
 shopt -s extglob
+# HTTP chunk sizes count bytes, which `read -N` counts as characters in a UTF-8
+# locale.
+export LC_ALL=C
 
 ALLOY_URL=${ALLOY_URL:-http://localhost:12345}
 MIMIR_READY_PATH=${MIMIR_READY_PATH:-/prometheus/config/v1/rules}
