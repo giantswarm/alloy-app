@@ -62,6 +62,10 @@ mimirRulesLivenessProbe:
   # answers 200, so Kubernetes restarts Alloy. This works around https://github.com/grafana/alloy/pull/6339.
   # Only a 5xx, a 429 or no answer from the rule listing counts, once the component health is older
   # than its sync_interval plus HEALTH_AGE_MARGIN. A rejected or invalid rule never restarts Alloy.
+  # Two cases cost at most one extra restart after a Mimir outage, never a loop, never for a bad rule:
+  # a pod that loses leadership during the outage, and a rule listing that fails slowly. A
+  # HEALTH_AGE_MARGIN of 6 x the longest ruler request minus sync_interval removes the second one.
+  # Components declared inside modules are never checked.
   # The release mounts the ConfigMap and sets the liveness probe, see examples/mimir-rules-liveness-probe.
   # The script reads its settings from the environment, see the header of scripts/mimir-rules-liveness-probe.sh.
   enabled: false

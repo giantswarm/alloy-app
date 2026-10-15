@@ -20,6 +20,18 @@
 # older than its sync_interval plus HEALTH_AGE_MARGIN, which is checked before
 # the ruler is queried.
 #
+# Two cases freeze the health without the latch. Each costs at most one extra
+# Alloy restart after a Mimir outage. Neither loops, neither follows a bad rule.
+# - A pod that loses leadership during the outage keeps its unhealthy health.
+#   A non-leader never reports healthy again.
+# - A rule listing that fails slowly refreshes the health only once its 6
+#   attempts are spent, every max(sync_interval, 6 x the request duration). A
+#   HEALTH_AGE_MARGIN of 6 x the longest ruler request minus sync_interval
+#   rules this out.
+#
+# The Alloy API lists the components of the root module only. A component
+# declared inside a module is never checked.
+#
 # The ruler is queried with the same credentials and tenant as the component
 # itself uses. Without them a Mimir behind a gateway answers 401 at the edge,
 # whether the ruler is up or down, which tells the probe nothing. Anything but
