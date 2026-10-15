@@ -19,6 +19,7 @@
 # itself uses. Without them a Mimir behind a gateway answers 401 at the edge,
 # whether the ruler is up or down, which tells the probe nothing. Anything but
 # a 200, a 502 from a gateway whose ruler is down included, leaves Alloy alone.
+# Components sharing a ruler and a tenant query it once per run.
 #
 # Anything else (Alloy API down, no such component, ruler unreachable) exits 0:
 # the probe only ever triggers a restart for the bug it works around.
@@ -288,6 +289,10 @@ if [[ -z $ids ]]; then
 	exit 0
 fi
 
+# Ruler status codes by ruler URL and tenant. Components sharing both, and the
+# credentials that are the same for all, query the ruler once per run.
+declare -A ruler_codes=()
+
 # Probe each component to detect if one is unhealthy while its Mimir ruler is ready.
 while read -r id; do
 	# Read the component detail, which carries its health and its arguments.
@@ -334,12 +339,17 @@ while read -r id; do
 	fi
 
 	# Only a 200 proves the ruler is back. Anything else leaves Alloy alone.
-	check_time_left
-	ready=$(ruler_get "$ready_url" "$tenant") || {
+	key=${ready_url}$'\n'${tenant}
+	if [[ -z ${ruler_codes[$key]+set} ]]; then
+		check_time_left
+		ready=$(ruler_get "$ready_url" "$tenant") || ready=unreachable
+		ruler_codes[$key]=${ready%%$'\n'*}
+	fi
+	code=${ruler_codes[$key]}
+	if [[ $code == unreachable ]]; then
 		log "${id}: unhealthy but Mimir ruler ${ready_url} is unreachable, skipping"
 		continue
-	}
-	code=${ready%%$'\n'*}
+	fi
 	if [[ $code != 200 ]]; then
 		log "${id}: unhealthy but Mimir ruler ${ready_url} did not answer (${code}), skipping"
 		continue

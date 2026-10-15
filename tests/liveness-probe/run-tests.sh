@@ -231,6 +231,35 @@ for setting in HTTP_TIMEOUT=0 HTTP_TIMEOUT=abc HTTP_TIMEOUT=1.5 PROBE_TIMEOUT=0 
 	check_log "invalid ${setting} is logged" "^${setting%%=*}=.* is not"
 done
 
+# check_ruler_requests NAME WANT
+#
+# Checks the mock of the last run_case received WANT ruler requests.
+check_ruler_requests() {
+	local got
+	got=$(grep -c 'ruler request' "$TMP/mock.log")
+	if [[ $got == "$2" ]]; then
+		printf 'PASS  %-45s | %s ruler requests\n' "$1" "$got"
+		passes=$((passes + 1))
+	else
+		printf 'FAIL  %-45s | %s ruler requests, want %s\n' "$1" "$got" "$2"
+		failures=$((failures + 1))
+	fi
+}
+
+# Components sharing a ruler, a tenant and the credentials share one request.
+PROBE_ENV=("${CREDS[@]}")
+run_case "three components share a ruler" 0 -ruler-status 503 \
+	-component 'a=unhealthy=RULER' \
+	-component 'b=unhealthy=RULER' \
+	-component 'c=unhealthy=RULER'
+check_ruler_requests "three components share a ruler, queried once" 1
+PROBE_ENV=("${CREDS[@]}")
+run_case "two tenants on one ruler" 0 -ruler-status 503 \
+	-component 'a=unhealthy=RULER=x' \
+	-component 'b=unhealthy=RULER=y' \
+	-component 'c=unhealthy=RULER=x'
+check_ruler_requests "two tenants on one ruler, queried twice" 2
+
 # run_timed NAME WANT_RC MAX_SECONDS [mock args...]
 #
 # Runs run_case and checks the probe finished within MAX_SECONDS and left no
@@ -276,6 +305,20 @@ run_timed "four hung tenants" 0 6 -ruler-hang \
 	-component 'b=unhealthy=RULER=b' \
 	-component 'c=unhealthy=RULER=c' \
 	-component 'd=unhealthy=RULER=d'
+# A hung ruler shared by several components is waited for once, which leaves
+# time for a later component.
+PROBE_ENV=("${CREDS[@]}" HTTP_TIMEOUT=2 PROBE_TIMEOUT=5)
+run_timed "shared hung ruler, later component checked" 1 3 \
+	-component 'a=unhealthy=http://SILENT' \
+	-component 'b=unhealthy=http://SILENT' \
+	-component 'c=unhealthy=http://SILENT' \
+	-component 'd=unhealthy=RULER'
+# A hung ruler may spend the whole budget, later components are not checked.
+PROBE_ENV=("${CREDS[@]}" HTTP_TIMEOUT=3 PROBE_TIMEOUT=3)
+run_timed "budget spent mid-loop" 0 4 \
+	-component 'a=unhealthy=http://SILENT' \
+	-component 'b=unhealthy=RULER'
+check_ruler_requests "budget spent mid-loop, b not checked" 0
 # Neither a TLS handshake nor a connection that never answers holds the probe.
 PROBE_ENV=("${CREDS[@]}" HTTP_TIMEOUT=2 PROBE_TIMEOUT=5)
 run_timed "four hung https tenants" 0 6 -ruler-hang \

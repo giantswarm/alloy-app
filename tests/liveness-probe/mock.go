@@ -176,6 +176,8 @@ func main() {
 
 	ruler := http.NewServeMux()
 	ruler.HandleFunc(rulerRulesPath, func(w http.ResponseWriter, r *http.Request) {
+		// Counted by run-tests.sh.
+		log.Printf("ruler request tenant=%s", r.Header.Get("X-Scope-OrgID"))
 		if *rulerHang {
 			<-r.Context().Done()
 			return
