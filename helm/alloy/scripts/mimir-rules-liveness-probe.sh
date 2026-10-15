@@ -10,10 +10,12 @@
 # API, and exits non-zero as soon as one of them is unhealthy with a health
 # message matching UNHEALTHY_MESSAGE_PATTERN while its own Mimir ruler answers
 # 200 on the ruler config API. The default pattern matches the failed rule
-# listing that latches the component, never a rule Mimir rejects, so a bad
-# PrometheusRule never restarts Alloy. A rule listing that fails in the running
-# component, after its retries, shows the same message and may restart Alloy
-# once. That component recovers on its own, so the restart never loops.
+# listing that latches the component: a 5xx or a 429, or no answer at all.
+# It never matches a rule Mimir rejects, an invalid rule, or a 4xx, which a
+# restart does not fix, so a bad PrometheusRule never restarts Alloy. A rule
+# listing that fails in the running component, after its retries, shows the
+# same message and may restart Alloy once. That component recovers on its own,
+# so the restart never loops.
 #
 # The ruler is queried with the same credentials and tenant as the component
 # itself uses. Without them a Mimir behind a gateway answers 401 at the edge,
@@ -51,7 +53,8 @@
 #                     skips the check.
 #   UNHEALTHY_MESSAGE_PATTERN
 #                     grep -E pattern the health message must match (default
-#                     ^(error GET [^ ]*|Get "[^"]*)/rules[":])
+#                     ^(error GET [^ ]*/rules: server returned HTTP status
+#                     (429|5[0-9]{2}) |Get "[^"]*/rules": ), on one line)
 
 set -uo pipefail
 shopt -s extglob
@@ -65,7 +68,7 @@ MIMIR_USERNAME=${MIMIR_USERNAME:-}
 MIMIR_PASSWORD=${MIMIR_PASSWORD:-}
 HTTP_TIMEOUT=${HTTP_TIMEOUT:-20}
 PROBE_TIMEOUT=${PROBE_TIMEOUT:-50}
-UNHEALTHY_MESSAGE_PATTERN=${UNHEALTHY_MESSAGE_PATTERN:-'^(error GET [^ ]*|Get "[^"]*)/rules[":]'}
+UNHEALTHY_MESSAGE_PATTERN=${UNHEALTHY_MESSAGE_PATTERN:-'^(error GET [^ ]*/rules: server returned HTTP status (429|5[0-9]{2}) |Get "[^"]*/rules": )'}
 
 # Set by ruler_get for the requests that go to Mimir rather than to Alloy, and
 # read back by http_request in the child process it re-execs.

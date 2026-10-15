@@ -204,19 +204,82 @@ run_case "address with a hostname" 1 \
 	-component 'giantswarm=unhealthy=RULER_LOCALHOST'
 
 # The health message tells the latch from a rule Mimir rejects, which a restart
-# would not fix. Messages are the ones mimir.rules.kubernetes reports.
-PROBE_ENV=("${CREDS[@]}")
-run_case "latch: GET rules answered 504" 1 \
-	-message 'error GET /prometheus/config/v1/rules: 504 Gateway Timeout: upstream request timeout' \
-	-component 'giantswarm=unhealthy=RULER'
-PROBE_ENV=("${CREDS[@]}")
-run_case "latch: GET rules TLS handshake timeout" 1 \
-	-message 'Get "https://mimir.example/prometheus/config/v1/rules": net/http: TLS handshake timeout' \
-	-component 'giantswarm=unhealthy=RULER'
-PROBE_ENV=("${CREDS[@]}")
-run_case "rule rejected by Mimir (400)" 0 \
-	-message $'1 error occurred:\n\t* error POST /prometheus/config/v1/rules/ns: unrecoverable error response: server returned HTTP status 400 Bad Request: bad rule' \
-	-component 'giantswarm=unhealthy=RULER'
+# would not fix. Messages are the ones mimir.rules.kubernetes v1.20.0 reports,
+# rendered by its Mimir client. Each entry is WANT_RC, NAME, MESSAGE.
+MESSAGES=(
+	1 "latch: GET rules connection refused"
+	'Get "http://mimir-gateway.mimir.svc/prometheus/config/v1/rules": dial tcp 10.96.4.12:80: connect: connection refused'
+	1 "latch: GET rules no such host"
+	'Get "http://mimir-gateway.mimir.svc.invalid/prometheus/config/v1/rules": dial tcp: lookup mimir-gateway.mimir.svc.invalid: no such host'
+	1 "latch: GET rules EOF"
+	'Get "http://mimir-gateway.mimir.svc/prometheus/config/v1/rules": EOF'
+	1 "latch: GET rules TLS handshake timeout"
+	'Get "https://mimir.example/prometheus/config/v1/rules": net/http: TLS handshake timeout'
+	1 "latch: GET rules answered 500"
+	'error GET /prometheus/config/v1/rules: server returned HTTP status 500 Internal Server Error: rpc error: code = Unavailable desc = connection error'
+	1 "latch: GET rules answered 502"
+	'error GET /prometheus/config/v1/rules: server returned HTTP status 502 Bad Gateway: <html><head><title>502 Bad Gateway</title></head>'
+	1 "latch: GET rules answered 503"
+	'error GET /prometheus/config/v1/rules: server returned HTTP status 503 Service Unavailable: no healthy upstream'
+	1 "latch: GET rules answered 504"
+	'error GET /prometheus/config/v1/rules: server returned HTTP status 504 Gateway Timeout: <html><head><title>504 Gateway Time-out</title></head>'
+	1 "latch: GET rules answered 429"
+	'error GET /prometheus/config/v1/rules: server returned HTTP status 429 Too Many Requests: too many outstanding requests'
+	1 "latch: GET legacy rules answered 503"
+	'error GET /api/v1/rules: server returned HTTP status 503 Service Unavailable: no healthy upstream'
+	# A wrong credential or prefix fails every listing, a restart included.
+	0 "GET rules answered 401"
+	'error GET /prometheus/config/v1/rules: unrecoverable error response: server returned HTTP status 401 Unauthorized: Unauthorized'
+	0 "GET rules answered 404"
+	'error GET /api/prom/config/v1/rules: unrecoverable error response: server returned HTTP status 404 Not Found: 404 page not found'
+	0 "GET rules answered 200 with HTML"
+	$'yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `<html> ...` into map[string][]client.MimirRuleGroup'
+	# Known false negative: a body cut short during the latch is not matched.
+	0 "GET rules body cut short"
+	'unexpected EOF'
+	0 "GET rules body connection reset"
+	'read tcp 10.0.3.17:52114->172.31.4.9:8080: read: connection reset by peer'
+	0 "rule rejected by Mimir (400)"
+	$'1 error occurred:\n\t* error POST /prometheus/config/v1/rules/alloy%2Fmonitoring%2Fmy-rules%2F0b4e7c2a-5d1f-4a7e-9c3b-2f6d8e1a9b0c: unrecoverable error response: server returned HTTP status 400 Bad Request: {"status":"error","errorType":"bad_data","error":"per-user rules per rule group limit (limit: 20 actual: 25) exceeded"}\n\n'
+	0 "rule create answered 503"
+	$'1 error occurred:\n\t* error POST /prometheus/config/v1/rules/alloy%2Fmonitoring%2Fmy-rules%2F0b4e7c2a-5d1f-4a7e-9c3b-2f6d8e1a9b0c: server returned HTTP status 503 Service Unavailable: no healthy upstream\n\n'
+	0 "rule create connection refused"
+	$'1 error occurred:\n\t* Post "http://mimir-gateway.mimir.svc/prometheus/config/v1/rules/alloy%2Fmonitoring%2Fmy-rules%2F0b4e7c2a-5d1f-4a7e-9c3b-2f6d8e1a9b0c": dial tcp 10.96.4.12:80: connect: connection refused\n\n'
+	0 "rule delete answered 404"
+	$'1 error occurred:\n\t* error DELETE /prometheus/config/v1/rules/alloy%2Fmonitoring%2Fmy-rules%2F0b4e7c2a-5d1f-4a7e-9c3b-2f6d8e1a9b0c/example: unrecoverable error response: server returned HTTP status 404 Not Found: group does not exist\n\n'
+	0 "rule delete connection refused"
+	$'1 error occurred:\n\t* Delete "http://mimir-gateway.mimir.svc/prometheus/config/v1/rules/alloy%2Fmonitoring%2Fmy-rules%2F0b4e7c2a-5d1f-4a7e-9c3b-2f6d8e1a9b0c/example": dial tcp 10.96.4.12:80: connect: connection refused\n\n'
+	0 "resync answered 504"
+	$'1 error occurred:\n\t* error GET /prometheus/config/v1/rules: server returned HTTP status 504 Gateway Timeout: <html>\n\n'
+	0 "resync connection refused"
+	$'1 error occurred:\n\t* Get "http://mimir-gateway.mimir.svc/prometheus/config/v1/rules": dial tcp 10.96.4.12:80: connect: connection refused\n\n'
+	0 "invalid PromQL"
+	$'failed to convert rule group: 1 error occurred:\n\t* 0:0: group "g", rule 1, "HighErrorRate": could not parse expression: 1:51: parse error: unclosed left parenthesis\n\n'
+	0 "duplicate rule group"
+	$'failed to convert rule group: 1 error occurred:\n\t* 6:3: groupname: "g" is repeated in the same file\n\n'
+	0 "invalid recording rule name"
+	$'failed to convert rule group: 1 error occurred:\n\t* 0:0: group "g", rule 1, "bad-name": invalid recording rule name: bad-name\n\n'
+	0 "k8s config error"
+	'failed to get k8s config: invalid configuration: no configuration has been provided, try setting KUBERNETES_MASTER environment variable'
+	0 "invalid rule selector"
+	"values: Invalid value: null: for 'in', 'notin' operators, values set can't be empty"
+	0 "invalid address"
+	'parse "http://mimir:80 80": invalid port ":80 80" after host'
+	0 "missing CA file"
+	'unable to read CA cert: unable to read file /etc/mimir/ca.crt: open /etc/mimir/ca.crt: no such file or directory'
+	0 "leader lookup failed"
+	'unable to determine leader for mimir.rules.kubernetes.giantswarm: unknown op 3'
+	0 "unexpected leadership peers"
+	'unexpected peers from leadership check: []'
+	0 "component evaluation failed"
+	'component evaluation failed: building component: initializing component failed: failed to get k8s config: invalid configuration: no configuration has been provided, try setting KUBERNETES_MASTER environment variable'
+)
+for ((i = 0; i < ${#MESSAGES[@]}; i += 3)); do
+	PROBE_ENV=("${CREDS[@]}")
+	run_case "${MESSAGES[i + 1]}" "${MESSAGES[i]}" \
+		-message "${MESSAGES[i + 2]}" \
+		-component 'giantswarm=unhealthy=RULER'
+done
 PROBE_ENV=("${CREDS[@]}" 'UNHEALTHY_MESSAGE_PATTERN=error POST')
 run_case "rule rejected, custom message pattern" 1 \
 	-message $'1 error occurred:\n\t* error POST /prometheus/config/v1/rules/ns: unrecoverable error response: server returned HTTP status 400 Bad Request: bad rule' \
