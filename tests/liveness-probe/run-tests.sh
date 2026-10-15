@@ -293,6 +293,13 @@ for path in prometheus/config/v1/rules $'/prometheus/config/v1/rules\r\nX-Scope-
 	check_log "invalid MIMIR_READY_PATH ${path@Q} is logged" "^MIMIR_READY_PATH=.* does not start with /"
 done
 
+for pattern in '^(error GET' '[[:nope:]]'; do
+	PROBE_ENV=("${CREDS[@]}" "UNHEALTHY_MESSAGE_PATTERN=$pattern")
+	run_case "invalid UNHEALTHY_MESSAGE_PATTERN $pattern" 0 \
+		-component 'giantswarm=unhealthy=RULER'
+	check_log "invalid UNHEALTHY_MESSAGE_PATTERN $pattern is logged" "^UNHEALTHY_MESSAGE_PATTERN=.* is not a valid grep -E pattern, skipping check$"
+done
+
 # The run deadline is internal. A PROBE_DEADLINE in the container environment
 # neither fails the probe nor disables its timeout.
 PROBE_ENV=("${CREDS[@]}" PROBE_DEADLINE=x)

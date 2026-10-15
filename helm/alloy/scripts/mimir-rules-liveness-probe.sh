@@ -61,7 +61,8 @@
 #   UNHEALTHY_MESSAGE_PATTERN
 #                     grep -E pattern the health message must match (default
 #                     ^(error GET [^ ]*/rules: server returned HTTP status
-#                     (429|5[0-9]{2}) |Get "[^"]*/rules": ), on one line)
+#                     (429|5[0-9]{2}) |Get "[^"]*/rules": ), on one line).
+#                     An invalid pattern skips the check.
 
 set -uo pipefail
 shopt -s extglob
@@ -222,6 +223,12 @@ done
 # headers.
 if [[ $MIMIR_READY_PATH != /* || $MIMIR_READY_PATH =~ [[:space:][:cntrl:]] ]]; then
 	log "MIMIR_READY_PATH=${MIMIR_READY_PATH@Q} does not start with / or holds whitespace or a control character, skipping check"
+	exit 0
+fi
+# grep exits 2 on an invalid pattern, 1 on no match.
+printf '' | grep -E -- "$UNHEALTHY_MESSAGE_PATTERN" >/dev/null 2>&1
+if (($? == 2)); then
+	log "UNHEALTHY_MESSAGE_PATTERN=${UNHEALTHY_MESSAGE_PATTERN@Q} is not a valid grep -E pattern, skipping check"
 	exit 0
 fi
 
