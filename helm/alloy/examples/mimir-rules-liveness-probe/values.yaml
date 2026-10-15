@@ -25,7 +25,7 @@ alloy:
           name: alloy-metrics
           key: metrics-password
           optional: true
-    # One probe run stops after PROBE_TIMEOUT, below timeoutSeconds.
+    # One probe run stops after PROBE_TIMEOUT, at least 2 seconds below timeoutSeconds.
     - name: PROBE_TIMEOUT
       value: "50"
     - name: HTTP_TIMEOUT
