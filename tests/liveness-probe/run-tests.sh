@@ -285,6 +285,14 @@ run_case "rule rejected, custom message pattern" 1 \
 	-message $'1 error occurred:\n\t* error POST /prometheus/config/v1/rules/ns: unrecoverable error response: server returned HTTP status 400 Bad Request: bad rule' \
 	-component 'giantswarm=unhealthy=RULER'
 
+# The ruler path is written as is into the request line.
+for path in prometheus/config/v1/rules $'/prometheus/config/v1/rules\r\nX-Scope-OrgID: other' '/prometheus/config/v1/rules HTTP/1.0' $'/rules\t'; do
+	PROBE_ENV=("${CREDS[@]}" "MIMIR_READY_PATH=$path")
+	run_case "invalid MIMIR_READY_PATH ${path@Q}" 0 \
+		-component 'giantswarm=unhealthy=RULER'
+	check_log "invalid MIMIR_READY_PATH ${path@Q} is logged" "^MIMIR_READY_PATH=.* does not start with /"
+done
+
 # The run deadline is internal. A PROBE_DEADLINE in the container environment
 # neither fails the probe nor disables its timeout.
 PROBE_ENV=("${CREDS[@]}" PROBE_DEADLINE=x)

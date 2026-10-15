@@ -46,7 +46,9 @@
 # Configuration (environment):
 #   ALLOY_URL         Alloy HTTP endpoint         (default http://localhost:12345)
 #   MIMIR_READY_PATH  Ruler reachability path     (default
-#                     /prometheus/config/v1/rules)
+#                     /prometheus/config/v1/rules). It starts with / and holds
+#                     no whitespace or control character, else the check is
+#                     skipped.
 #   MIMIR_USERNAME    Basic auth user for the ruler. Unset disables the check,
 #   MIMIR_PASSWORD    so that Alloy is never restarted on a 401 the probe
 #                     caused itself.
@@ -216,6 +218,12 @@ for setting in HTTP_TIMEOUT PROBE_TIMEOUT HEALTH_AGE_MARGIN; do
 		exit 0
 	fi
 done
+# The path goes as is into the request line, where a CR or a LF would add
+# headers.
+if [[ $MIMIR_READY_PATH != /* || $MIMIR_READY_PATH =~ [[:space:][:cntrl:]] ]]; then
+	log "MIMIR_READY_PATH=${MIMIR_READY_PATH@Q} does not start with / or holds whitespace or a control character, skipping check"
+	exit 0
+fi
 
 # Re-exec the run under `timeout`, which kills it, requests included, should
 # anything hang past PROBE_TIMEOUT. Running out of time is never a failure.
