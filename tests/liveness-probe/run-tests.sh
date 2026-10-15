@@ -517,17 +517,8 @@ fi
 
 # An Alloy API that accepts the connection but never answers must be given up
 # on rather than time the probe out, which Kubernetes counts as a failure.
-before=$(date +%s)
 PROBE_ENV=(HTTP_TIMEOUT=1)
-run_case "hung Alloy API" 0 -hang
-elapsed=$(($(date +%s) - before))
-if [[ $elapsed -le 3 ]]; then
-	printf 'PASS  %-45s | %ss\n' "hung Alloy API gives up on time" "$elapsed"
-	passes=$((passes + 1))
-else
-	printf 'FAIL  %-45s | %ss\n' "hung Alloy API gives up on time" "$elapsed"
-	failures=$((failures + 1))
-fi
+run_timed "hung Alloy API" 0 2 -hang
 
 # Alloy itself being down must never restart it.
 out=$(ALLOY_URL="http://127.0.0.1:1" bash "$PROBE" 2>&1)
