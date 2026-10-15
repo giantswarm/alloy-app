@@ -25,6 +25,7 @@ failures=0
 skips=0
 alloy=""
 ruler=""
+last_out=""
 # Environment given to the next run_case, reset after every case. RULER in a
 # value is replaced with the address of the ruler the mock ends up listening on.
 PROBE_ENV=()
@@ -105,6 +106,20 @@ run_case() {
 	PROBE_IN_IMAGE=0
 
 	check "$name" "$want" "$rc" "$out"
+	last_out=$out
+}
+
+# check_log NAME REGEX
+#
+# Checks the output of the last run_case matches REGEX.
+check_log() {
+	if grep -E -- "$2" >/dev/null <<<"$last_out"; then
+		printf 'PASS  %-45s | logs %s\n' "$1" "$2"
+		passes=$((passes + 1))
+	else
+		printf 'FAIL  %-45s | does not log %s\n' "$1" "$2"
+		failures=$((failures + 1))
+	fi
 }
 
 go build -C "$HERE" -o "$MOCK" . || exit 1
@@ -200,6 +215,15 @@ PROBE_ENV=("${CREDS[@]}" 'UNHEALTHY_MESSAGE_PATTERN=error POST')
 run_case "rule rejected, custom message pattern" 1 \
 	-message $'1 error occurred:\n\t* error POST /prometheus/config/v1/rules/ns: unrecoverable error response: server returned HTTP status 400 Bad Request: bad rule' \
 	-component 'giantswarm=unhealthy=RULER'
+
+# A timeout that is not a positive number of seconds is a configuration error,
+# which must never restart Alloy. `timeout 0` would also disable the timeout.
+for setting in HTTP_TIMEOUT=0 HTTP_TIMEOUT=abc HTTP_TIMEOUT=1.5 PROBE_TIMEOUT=0 PROBE_TIMEOUT=-5 PROBE_TIMEOUT=08; do
+	PROBE_ENV=("${CREDS[@]}" "$setting")
+	run_case "invalid ${setting}" 0 \
+		-component 'giantswarm=unhealthy=RULER'
+	check_log "invalid ${setting} is logged" "^${setting%%=*}=.* is not"
+done
 
 # run_timed NAME WANT_RC MAX_SECONDS [mock args...]
 #

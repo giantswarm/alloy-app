@@ -44,6 +44,8 @@
 #                     caused itself.
 #   HTTP_TIMEOUT      Per request timeout seconds (default 20)
 #   PROBE_TIMEOUT     Probe run timeout seconds   (default 50)
+#                     Both are whole seconds from 1 to 999999. Any other value
+#                     skips the check.
 #   UNHEALTHY_MESSAGE_PATTERN
 #                     grep -E pattern the health message must match (default
 #                     ^(error GET [^ ]*|Get "[^"]*)/rules[":])
@@ -193,6 +195,15 @@ if [[ ${1:-} == --http-get ]]; then
 	raw_http_get "$2" 2>/dev/null
 	exit $?
 fi
+
+# A bad setting leaves Alloy alone, like any other failure of the probe. Bash
+# arithmetic reads 08 as octal, and `timeout 0` never times out.
+for setting in HTTP_TIMEOUT PROBE_TIMEOUT; do
+	if [[ ! ${!setting} =~ ^[1-9][0-9]{0,5}$ ]]; then
+		log "${setting}=${!setting} is not a whole number of seconds between 1 and 999999, skipping check"
+		exit 0
+	fi
+done
 
 # check_time_left
 #
