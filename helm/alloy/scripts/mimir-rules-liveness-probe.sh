@@ -22,8 +22,8 @@
 #
 # Two cases freeze the health without the latch. Each costs at most one extra
 # Alloy restart after a Mimir outage. Neither loops, neither follows a bad rule.
-# - A pod that loses leadership during the outage keeps its unhealthy health.
-#   A non-leader never reports healthy again.
+# - A pod that loses leadership before its health recovers from the outage
+#   keeps its unhealthy health. A non-leader never reports healthy again.
 # - A rule listing that fails slowly refreshes the health only once its 6
 #   attempts are spent, every max(sync_interval, 6 x the request duration). A
 #   HEALTH_AGE_MARGIN of 6 x the longest ruler request minus sync_interval
