@@ -26,6 +26,9 @@ skips=0
 alloy=""
 ruler=""
 last_out=""
+# Wall time of the last probe run in milliseconds, and the ports its mock bound.
+last_elapsed=0
+last_ports=""
 # Environment given to the next run_case, reset after every case. RULER in a
 # value is replaced with the address of the ruler the mock ends up listening on.
 PROBE_ENV=()
@@ -70,7 +73,7 @@ check() {
 
 # run_case NAME WANT_RC [mock args...]
 run_case() {
-	local name=$1 want=$2 out rc entry
+	local name=$1 want=$2 out rc entry before
 	local -a probe_env=()
 	shift 2
 
@@ -89,10 +92,12 @@ run_case() {
 		PROBE_IN_IMAGE=0
 		return
 	fi
+	last_ports=$(grep -o ':[0-9]*$' "$TMP/mock.log" | tr -d : | paste -sd'|')
 	probe_env=("ALLOY_URL=http://$alloy")
 	for entry in "${PROBE_ENV[@]}"; do
 		probe_env+=("${entry//RULER/http://$ruler}")
 	done
+	before=${EPOCHREALTIME/./}
 	if ((PROBE_IN_IMAGE)); then
 		out=$(docker run --rm --read-only --network host --entrypoint bash \
 			-v "$PROBE:/probe.sh:ro" "${probe_env[@]/#/--env=}" \
@@ -101,6 +106,7 @@ run_case() {
 		out=$(env "${probe_env[@]}" bash "$PROBE" 2>&1)
 	fi
 	rc=$?
+	last_elapsed=$(((${EPOCHREALTIME/./} - before) / 1000))
 	stop_mock
 	PROBE_ENV=()
 	PROBE_IN_IMAGE=0
@@ -227,18 +233,31 @@ done
 
 # run_timed NAME WANT_RC MAX_SECONDS [mock args...]
 #
-# Runs run_case and checks it finished within MAX_SECONDS.
+# Runs run_case and checks the probe finished within MAX_SECONDS and left no
+# request behind.
 run_timed() {
-	local name=$1 want=$2 max=$3 before elapsed
+	local name=$1 want=$2 max=$3 elapsed left
 	shift 3
-	before=$(date +%s)
 	run_case "$name" "$want" "$@"
-	elapsed=$(($(date +%s) - before))
-	if [[ $elapsed -le $max ]]; then
+	elapsed=$(printf '%d.%03d' $((last_elapsed / 1000)) $((last_elapsed % 1000)))
+	if ((last_elapsed <= max * 1000)); then
 		printf 'PASS  %-45s | %ss\n' "$name gives up on time" "$elapsed"
 		passes=$((passes + 1))
 	else
-		printf 'FAIL  %-45s | %ss\n' "$name gives up on time" "$elapsed"
+		printf 'FAIL  %-45s | %ss, want at most %ss\n' "$name gives up on time" "$elapsed" "$max"
+		failures=$((failures + 1))
+	fi
+	# Killed requests may take a moment to be reaped.
+	for _ in $(seq 1 10); do
+		left=$(pgrep -af -- "(--http-get|s_client).*127\.0\.0\.1:($last_ports)\b")
+		[[ -z $left ]] && break
+		sleep 0.05
+	done
+	if [[ -z $left ]]; then
+		printf 'PASS  %-45s |\n' "$name leaves no request behind"
+		passes=$((passes + 1))
+	else
+		printf 'FAIL  %-45s | %s\n' "$name leaves no request behind" "${left//$'\n'/ ; }"
 		failures=$((failures + 1))
 	fi
 }
@@ -250,10 +269,51 @@ run_timed "three hung rulers" 0 4 -ruler-hang \
 	-component 'a=unhealthy=RULER' \
 	-component 'b=unhealthy=RULER' \
 	-component 'c=unhealthy=RULER'
+# Distinct tenants are distinct requests, which add up past PROBE_TIMEOUT.
+PROBE_ENV=("${CREDS[@]}" HTTP_TIMEOUT=2 PROBE_TIMEOUT=5)
+run_timed "four hung tenants" 0 6 -ruler-hang \
+	-component 'a=unhealthy=RULER=a' \
+	-component 'b=unhealthy=RULER=b' \
+	-component 'c=unhealthy=RULER=c' \
+	-component 'd=unhealthy=RULER=d'
+# Neither a TLS handshake nor a connection that never answers holds the probe.
+PROBE_ENV=("${CREDS[@]}" HTTP_TIMEOUT=2 PROBE_TIMEOUT=5)
+run_timed "four hung https tenants" 0 6 -ruler-hang \
+	-component 'a=unhealthy=RULER_TLS=a' \
+	-component 'b=unhealthy=RULER_TLS=b' \
+	-component 'c=unhealthy=RULER_TLS=c' \
+	-component 'd=unhealthy=RULER_TLS=d'
+PROBE_ENV=("${CREDS[@]}" HTTP_TIMEOUT=20 PROBE_TIMEOUT=3)
+run_timed "https ruler hung in the handshake" 0 4 \
+	-component 'giantswarm=unhealthy=https://SILENT'
+PROBE_ENV=("${CREDS[@]}" HTTP_TIMEOUT=20 PROBE_TIMEOUT=3)
+run_timed "http ruler hung on connect" 0 4 \
+	-component 'giantswarm=unhealthy=http://SILENT'
 # A single request never outlives PROBE_TIMEOUT.
 PROBE_ENV=("${CREDS[@]}" HTTP_TIMEOUT=20 PROBE_TIMEOUT=2)
 run_timed "hung ruler, short probe timeout" 0 3 -ruler-hang \
 	-component 'giantswarm=unhealthy=RULER'
+
+# Less than a second left is not enough for a request: `timeout` must never be
+# given 0, which disables it, nor a negative duration.
+mkdir -p "$TMP/bin"
+cat >"$TMP/bin/timeout" <<EOF
+#!/usr/bin/env bash
+printf '%s\n' "\$*" >>"$TMP/timeout.log"
+exec $(command -v timeout) "\$@"
+EOF
+chmod +x "$TMP/bin/timeout"
+PROBE_ENV=("${CREDS[@]}" "PATH=$TMP/bin:$PATH" HTTP_TIMEOUT=20 PROBE_TIMEOUT=2)
+run_timed "less than a second left" 0 3 -alloy-delay 1.5s \
+	-component 'giantswarm=unhealthy=RULER'
+check_log "less than a second left is logged" "Probe timeout of 2s reached"
+if awk '{ d = $1 == "-k" ? $3 : $1; if (d < 1) bad = 1 } END { exit bad }' "$TMP/timeout.log"; then
+	printf 'PASS  %-45s | %s\n' "timeout is never given less than 1s" "$(paste -sd, "$TMP/timeout.log")"
+	passes=$((passes + 1))
+else
+	printf 'FAIL  %-45s | %s\n' "timeout is never given less than 1s" "$(paste -sd, "$TMP/timeout.log")"
+	failures=$((failures + 1))
+fi
 
 # An Alloy API that accepts the connection but never answers must be given up
 # on rather than time the probe out, which Kubernetes counts as a failure.

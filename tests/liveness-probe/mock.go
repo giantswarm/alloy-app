@@ -10,10 +10,13 @@
 // The ruler is served both in plain HTTP and, from a self-signed certificate
 // generated on startup, over TLS, so that both probe transports are exercised.
 //
+// A silent listener accepts connections and never reads or writes, standing
+// in for a ruler that hangs before any HTTP or TLS exchange.
+//
 // Every listener binds an ephemeral port and their addresses are printed on
 // stdout, so concurrent runs never collide. Component addresses may therefore
-// not be known upfront: the RULER, RULER_LOCALHOST and RULER_TLS placeholders
-// are replaced with the ruler address once it is bound.
+// not be known upfront: the RULER, RULER_LOCALHOST, RULER_TLS and SILENT
+// placeholders are replaced with the listener address once it is bound.
 package main
 
 import (
@@ -69,7 +72,8 @@ type componentDetail struct {
 	Arguments    []jsonAttr `json:"arguments,omitempty"`
 }
 
-// specs holds the repeatable -component flag, each "label=health=address".
+// specs holds the repeatable -component flag, each "label=health=address" or
+// "label=health=address=tenant".
 type specs []string
 
 func (s *specs) String() string     { return strings.Join(*s, ",") }
@@ -81,13 +85,14 @@ func main() {
 	rulerAuth := flag.String("ruler-auth", "", "basic auth user:password the ruler config API requires, empty to require none")
 	rulerTenant := flag.String("ruler-tenant", "", "X-Scope-OrgID the ruler config API requires, empty to require none")
 	hang := flag.Bool("hang", false, "accept requests on the Alloy API but never answer them")
+	alloyDelay := flag.Duration("alloy-delay", 0, "delay before the Alloy API lists the components")
 	rulerHang := flag.Bool("ruler-hang", false, "accept requests on the ruler config API but never answer them")
 	message := flag.String("message", "error GET /prometheus/config/v1/rules: server returned HTTP status 503 Service Unavailable", "health message reported for every component")
-	tenantID := flag.String("tenant-id", "anonymous", "tenant_id argument reported for every component")
+	tenantID := flag.String("tenant-id", "anonymous", "tenant_id argument reported for every component without its own")
 	chunked := flag.Bool("chunked", false, "flush the Alloy API responses, so they are framed as chunked")
 	original := flag.Int("original-size", 0, "size in characters of the original configuration reported for every component")
 	originalChar := flag.String("original-char", "x", "character the original configuration is made of")
-	flag.Var(&comps, "component", "mimir.rules.kubernetes component to serve, as label=health=address")
+	flag.Var(&comps, "component", "mimir.rules.kubernetes component to serve, as label=health=address[=tenant]")
 	flag.Parse()
 
 	rulerListener, err := net.Listen("tcp", "127.0.0.1:0")
@@ -102,21 +107,30 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	silentListener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		log.Fatal(err)
+	}
 	rulerAddr := rulerListener.Addr().String()
 	rulerTLSAddr := rulerTLSListener.Addr().String()
 
 	details := map[string]componentDetail{}
 	var list []componentDetail
 	for _, c := range comps {
-		parts := strings.SplitN(c, "=", 3)
-		if len(parts) != 3 {
-			log.Fatalf("malformed -component %q, want label=health=address", c)
+		parts := strings.SplitN(c, "=", 4)
+		if len(parts) < 3 {
+			log.Fatalf("malformed -component %q, want label=health=address[=tenant]", c)
 		}
 		address := strings.NewReplacer(
 			"RULER_LOCALHOST", "http://localhost:"+portOf(rulerAddr),
 			"RULER_TLS", "https://"+rulerTLSAddr,
 			"RULER", "http://"+rulerAddr,
+			"SILENT", silentListener.Addr().String(),
 		).Replace(parts[2])
+		tenant := *tenantID
+		if len(parts) == 4 {
+			tenant = parts[3]
+		}
 
 		d := componentDetail{
 			Name:         "mimir.rules.kubernetes",
@@ -128,7 +142,7 @@ func main() {
 			Original:     strings.Repeat(*originalChar, *original),
 			Arguments: []jsonAttr{
 				{Name: "address", Type: "attr", Value: jsonValue{Type: "string", Value: address}},
-				{Name: "tenant_id", Type: "attr", Value: jsonValue{Type: "string", Value: *tenantID}},
+				{Name: "tenant_id", Type: "attr", Value: jsonValue{Type: "string", Value: tenant}},
 			},
 		}
 		details[d.LocalID] = d
@@ -148,6 +162,7 @@ func main() {
 			<-r.Context().Done()
 			return
 		}
+		time.Sleep(*alloyDelay)
 		writeJSON(w, r, *chunked, list)
 	})
 	alloy.HandleFunc("/api/v0/web/components/", func(w http.ResponseWriter, r *http.Request) {
@@ -185,8 +200,19 @@ func main() {
 		fmt.Fprintln(w, "rules")
 	})
 
-	fmt.Printf("ruler=%s\nruler_tls=%s\nalloy=%s\n", rulerAddr, rulerTLSAddr, alloyListener.Addr())
+	fmt.Printf("ruler=%s\nruler_tls=%s\nsilent=%s\nalloy=%s\n", rulerAddr, rulerTLSAddr, silentListener.Addr(), alloyListener.Addr())
 
+	go func() {
+		// Held, so that the connections are never closed.
+		var held []net.Conn
+		for {
+			c, err := silentListener.Accept()
+			if err != nil {
+				log.Fatal(err)
+			}
+			held = append(held, c)
+		}
+	}()
 	go func() { log.Fatal(http.Serve(rulerListener, ruler)) }()
 	go func() {
 		l := tls.NewListener(rulerTLSListener, &tls.Config{Certificates: []tls.Certificate{selfSigned()}})

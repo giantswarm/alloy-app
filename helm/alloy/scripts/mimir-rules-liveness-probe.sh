@@ -23,9 +23,11 @@
 # Anything else (Alloy API down, no such component, ruler unreachable) exits 0:
 # the probe only ever triggers a restart for the bug it works around.
 #
-# One probe run never takes longer than PROBE_TIMEOUT: each request is bounded
-# by what is left of it, and the probe exits 0 once it is spent. Set it below
-# the kubelet timeoutSeconds, which counts a probe timeout as a failure.
+# One probe run never takes longer than PROBE_TIMEOUT plus a second: each
+# request is bounded by what is left of it, the probe exits 0 once less than a
+# second is left, and the whole run is killed and exits 0 at PROBE_TIMEOUT. Set
+# PROBE_TIMEOUT at least 2 seconds below the kubelet timeoutSeconds, which
+# counts a probe timeout as a failure.
 #
 # Only bash builtins, coreutils and openssl are used, so it runs as-is in the
 # upstream Alloy image, which ships neither curl nor jq. Both http:// and
@@ -68,6 +70,9 @@ UNHEALTHY_MESSAGE_PATTERN=${UNHEALTHY_MESSAGE_PATTERN:-'^(error GET [^ ]*|Get "[
 # read back by http_request in the child process it re-execs.
 PROBE_AUTH=${PROBE_AUTH:-}
 PROBE_TENANT=${PROBE_TENANT:-}
+# Set for the run the probe re-execs under `timeout`, in microseconds since
+# the epoch.
+PROBE_DEADLINE=${PROBE_DEADLINE:-}
 
 log() {
 	printf '%s\n' "$*"
@@ -205,37 +210,50 @@ for setting in HTTP_TIMEOUT PROBE_TIMEOUT; do
 	fi
 done
 
+# Re-exec the run under `timeout`, which kills it, requests included, should
+# anything hang past PROBE_TIMEOUT. Running out of time is never a failure.
+if [[ -z $PROBE_DEADLINE ]]; then
+	PROBE_DEADLINE=$((${EPOCHREALTIME/./} + PROBE_TIMEOUT * 1000000)) \
+		timeout -k 1 "$PROBE_TIMEOUT" bash "$0"
+	rc=$?
+	case $rc in
+	0 | 1) exit $rc ;;
+	124 | 137) log "Probe timeout of ${PROBE_TIMEOUT}s reached, skipping check" ;;
+	*) log "Probe exited with ${rc}, skipping check" ;;
+	esac
+	exit 0
+fi
+
 # check_time_left
 #
-# Exits 0 once PROBE_TIMEOUT is spent, before the kubelet times the probe out.
+# Sets request_timeout to HTTP_TIMEOUT, capped to what is left of PROBE_TIMEOUT.
+# Exits 0 once less than a second is left, before the kubelet times the probe
+# out. EPOCHREALTIME counts microseconds, where SECONDS only counts whole ones.
 check_time_left() {
-	((SECONDS < PROBE_TIMEOUT)) && return 0
-	log "Probe timeout of ${PROBE_TIMEOUT}s reached, skipping check"
-	exit 0
-}
-
-# request_timeout
-#
-# Prints HTTP_TIMEOUT, capped to what is left of PROBE_TIMEOUT.
-request_timeout() {
-	local left=$((PROBE_TIMEOUT - SECONDS))
-	((left < HTTP_TIMEOUT)) || left=$HTTP_TIMEOUT
-	printf '%s\n' "$left"
+	local left=$((PROBE_DEADLINE - ${EPOCHREALTIME/./}))
+	if ((left < 1000000)); then
+		log "Probe timeout of ${PROBE_TIMEOUT}s reached, skipping check"
+		exit 0
+	fi
+	((left < HTTP_TIMEOUT * 1000000)) || left=$((HTTP_TIMEOUT * 1000000))
+	printf -v request_timeout '%d.%06d' $((left / 1000000)) $((left % 1000000))
 }
 
 # http_get URL
 #
 # Same output as raw_http_get, but runs it in a child process bounded by
-# request_timeout. Returns non-zero when the request failed or timed out.
+# request_timeout, which check_time_left sets. `timeout` kills the whole child
+# process group, openssl included. Returns non-zero when the request failed or
+# timed out.
 http_get() {
-	timeout "$(request_timeout)" bash "$0" --http-get "$1"
+	timeout -k 1 "$request_timeout" bash "$0" --http-get "$1" 2>/dev/null
 }
 
 # ruler_get URL TENANT
 #
 # Same as http_get, with the credentials and the tenant the component uses.
 ruler_get() {
-	PROBE_AUTH=1 PROBE_TENANT=$2 timeout "$(request_timeout)" bash "$0" --http-get "$1"
+	PROBE_AUTH=1 PROBE_TENANT=$2 timeout -k 1 "$request_timeout" bash "$0" --http-get "$1" 2>/dev/null
 }
 
 # json_string_after PATTERN JSON
