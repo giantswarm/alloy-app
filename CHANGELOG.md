@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional `mimirRulesLivenessProbe.enabled` as workaround for [grafana/alloy#6339](https://github.com/grafana/alloy/pull/6339).
   - `PROBE_TIMEOUT` bounds one probe run. Set it at least 2 seconds below `timeoutSeconds`.
   - Each Mimir ruler and tenant is queried once per run.
-  - `UNHEALTHY_MESSAGE_PATTERN` selects the health messages that restart Alloy. A rejected rule never restarts Alloy.
+  - `UNHEALTHY_MESSAGE_PATTERN` selects the health messages that restart Alloy: a 5xx, a 429 or no answer from the rule listing. A rejected rule, an invalid rule or a 4xx never restarts Alloy.
+  - `HEALTH_AGE_MARGIN` delays the restart. The component health must be older than its `sync_interval` plus `HEALTH_AGE_MARGIN`, 60 seconds by default.
 
 ## [0.24.0] - 2026-09-29
 

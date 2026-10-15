@@ -30,6 +30,9 @@ alloy:
       value: "50"
     - name: HTTP_TIMEOUT
       value: "20"
+    # Alloy restarts only once the component health is older than its sync_interval plus HEALTH_AGE_MARGIN.
+    - name: HEALTH_AGE_MARGIN
+      value: "60"
     livenessProbe:
       exec:
         command:

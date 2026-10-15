@@ -60,6 +60,8 @@ mimirRulesLivenessProbe:
   # -- Render the `<release>-mimir-rules-liveness-probe` ConfigMap holding a liveness probe script.
   # The script fails when a `mimir.rules.kubernetes` component is unhealthy while its Mimir ruler
   # answers 200, so Kubernetes restarts Alloy. This works around https://github.com/grafana/alloy/pull/6339.
+  # Only a 5xx, a 429 or no answer from the rule listing counts, once the component health is older
+  # than its sync_interval plus HEALTH_AGE_MARGIN. A rejected or invalid rule never restarts Alloy.
   # The release mounts the ConfigMap and sets the liveness probe, see examples/mimir-rules-liveness-probe.
   # The script reads its settings from the environment, see the header of scripts/mimir-rules-liveness-probe.sh.
   enabled: false
