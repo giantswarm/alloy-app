@@ -20,7 +20,9 @@ cleanup() {
 }
 trap cleanup EXIT
 
+passes=0
 failures=0
+skips=0
 alloy=""
 ruler=""
 # Environment given to the next run_case, reset after every case. RULER in a
@@ -58,6 +60,7 @@ check() {
 	local name=$1 want=$2 rc=$3 out=$4
 	if [[ $rc == "$want" ]]; then
 		printf 'PASS  %-45s rc=%s | %s\n' "$name" "$rc" "${out//$'\n'/ ; }"
+		passes=$((passes + 1))
 	else
 		printf 'FAIL  %-45s rc=%s want=%s | %s\n' "$name" "$rc" "$want" "${out//$'\n'/ ; }"
 		failures=$((failures + 1))
@@ -70,8 +73,11 @@ run_case() {
 	local -a probe_env=()
 	shift 2
 
-	if ((PROBE_IN_IMAGE)) && ! command -v docker >/dev/null; then
+	# A docker binary without a daemon fails the run with rc 1, which would
+	# pass a case expecting 1.
+	if ((PROBE_IN_IMAGE)) && ! docker info >/dev/null 2>&1; then
 		printf 'SKIP  %-45s | docker is not available\n' "$name"
+		skips=$((skips + 1))
 		PROBE_ENV=()
 		PROBE_IN_IMAGE=0
 		return
@@ -206,6 +212,7 @@ run_timed() {
 	elapsed=$(($(date +%s) - before))
 	if [[ $elapsed -le $max ]]; then
 		printf 'PASS  %-45s | %ss\n' "$name gives up on time" "$elapsed"
+		passes=$((passes + 1))
 	else
 		printf 'FAIL  %-45s | %ss\n' "$name gives up on time" "$elapsed"
 		failures=$((failures + 1))
@@ -232,6 +239,7 @@ run_case "hung Alloy API" 0 -hang
 elapsed=$(($(date +%s) - before))
 if [[ $elapsed -le 3 ]]; then
 	printf 'PASS  %-45s | %ss\n' "hung Alloy API gives up on time" "$elapsed"
+	passes=$((passes + 1))
 else
 	printf 'FAIL  %-45s | %ss\n' "hung Alloy API gives up on time" "$elapsed"
 	failures=$((failures + 1))
@@ -242,5 +250,7 @@ out=$(ALLOY_URL="http://127.0.0.1:1" bash "$PROBE" 2>&1)
 check "Alloy API down" 0 "$?" "$out"
 
 echo
+echo "passes: $passes"
 echo "failures: $failures"
+echo "skips: $skips"
 exit $((failures > 0))
