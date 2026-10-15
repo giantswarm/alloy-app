@@ -310,6 +310,14 @@ PROBE_ENV=("${CREDS[@]}" PROBE_DEADLINE=1)
 run_case "PROBE_DEADLINE=1 in the environment, latch" 1 \
 	-component 'giantswarm=unhealthy=RULER'
 
+# The run re-exec never fails on a missing or broken deadline.
+for deadline in '' x 1.5; do
+	out=$(ALLOY_URL="http://127.0.0.1:1" bash "$PROBE" --run ${deadline:+"$deadline"} 2>&1)
+	check "--run deadline ${deadline@Q}" 0 "$?" "$out"
+	last_out=$out
+	check_log "--run deadline ${deadline@Q} is logged" "^Probe deadline .* is not a whole number, skipping check$"
+done
+
 # check_ruler_requests NAME WANT
 #
 # Checks the mock of the last run_case received WANT ruler requests.

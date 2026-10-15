@@ -249,7 +249,11 @@ fi
 # The run gets its deadline, in microseconds since the epoch, as an argument
 # rather than from the environment, which the container could set.
 if [[ ${1:-} == --run ]]; then
-	PROBE_DEADLINE=$2
+	PROBE_DEADLINE=${2:-}
+	if [[ ! $PROBE_DEADLINE =~ ^[0-9]+$ ]]; then
+		log "Probe deadline ${PROBE_DEADLINE@Q} is not a whole number, skipping check"
+		exit 0
+	fi
 else
 	timeout -k 1 "$PROBE_TIMEOUT" bash "$0" --run $((${EPOCHREALTIME/./} + PROBE_TIMEOUT * 1000000))
 	rc=$?
