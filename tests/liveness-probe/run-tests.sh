@@ -285,6 +285,16 @@ run_case "rule rejected, custom message pattern" 1 \
 	-message $'1 error occurred:\n\t* error POST /prometheus/config/v1/rules/ns: unrecoverable error response: server returned HTTP status 400 Bad Request: bad rule' \
 	-component 'giantswarm=unhealthy=RULER'
 
+# The run deadline is internal. A PROBE_DEADLINE in the container environment
+# neither fails the probe nor disables its timeout.
+PROBE_ENV=("${CREDS[@]}" PROBE_DEADLINE=x)
+run_case "PROBE_DEADLINE=x in the environment, healthy" 0 \
+	-component 'giantswarm=healthy=RULER'
+check_log "PROBE_DEADLINE=x in the environment is ignored" ": healthy$"
+PROBE_ENV=("${CREDS[@]}" PROBE_DEADLINE=1)
+run_case "PROBE_DEADLINE=1 in the environment, latch" 1 \
+	-component 'giantswarm=unhealthy=RULER'
+
 # check_ruler_requests NAME WANT
 #
 # Checks the mock of the last run_case received WANT ruler requests.

@@ -80,9 +80,6 @@ UNHEALTHY_MESSAGE_PATTERN=${UNHEALTHY_MESSAGE_PATTERN:-'^(error GET [^ ]*/rules:
 # read back by http_request in the child process it re-execs.
 PROBE_AUTH=${PROBE_AUTH:-}
 PROBE_TENANT=${PROBE_TENANT:-}
-# Set for the run the probe re-execs under `timeout`, in microseconds since
-# the epoch.
-PROBE_DEADLINE=${PROBE_DEADLINE:-}
 
 log() {
 	printf '%s\n' "$*"
@@ -222,9 +219,12 @@ done
 
 # Re-exec the run under `timeout`, which kills it, requests included, should
 # anything hang past PROBE_TIMEOUT. Running out of time is never a failure.
-if [[ -z $PROBE_DEADLINE ]]; then
-	PROBE_DEADLINE=$((${EPOCHREALTIME/./} + PROBE_TIMEOUT * 1000000)) \
-		timeout -k 1 "$PROBE_TIMEOUT" bash "$0"
+# The run gets its deadline, in microseconds since the epoch, as an argument
+# rather than from the environment, which the container could set.
+if [[ ${1:-} == --run ]]; then
+	PROBE_DEADLINE=$2
+else
+	timeout -k 1 "$PROBE_TIMEOUT" bash "$0" --run $((${EPOCHREALTIME/./} + PROBE_TIMEOUT * 1000000))
 	rc=$?
 	case $rc in
 	0 | 1) exit $rc ;;
