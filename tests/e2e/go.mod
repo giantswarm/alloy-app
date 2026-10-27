@@ -1,10 +1,10 @@
 module e2e
 
-go 1.27.2
+go 1.27.3
 
 require (
 	github.com/giantswarm/apptest-framework/v5 v5.4.1
-	github.com/giantswarm/clustertest/v5 v5.6.4
+	github.com/giantswarm/clustertest/v5 v5.6.5
 	github.com/onsi/ginkgo/v2 v2.33.1
 	github.com/onsi/gomega v1.44.0
 	k8s.io/api v0.37.1
@@ -26,7 +26,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cenkalti/backoff/v7 v7.0.1 // indirect
-	github.com/cert-manager/cert-manager v1.21.2 // indirect
+	github.com/cert-manager/cert-manager v1.21.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chai2010/gettext-go v1.0.3 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
@@ -41,16 +41,16 @@ require (
 	github.com/extism/go-sdk v1.7.1 // indirect
 	github.com/fatih/color v1.19.0 // indirect
 	github.com/fluxcd/cli-utils v1.4.0 // indirect
-	github.com/fluxcd/helm-controller/api v1.6.5 // indirect
+	github.com/fluxcd/helm-controller/api v1.7.0 // indirect
 	github.com/fluxcd/pkg/apis/acl v0.12.0 // indirect
 	github.com/fluxcd/pkg/apis/kustomize v1.23.0 // indirect
-	github.com/fluxcd/pkg/apis/meta v1.36.0 // indirect
-	github.com/fluxcd/source-controller/api v1.9.6 // indirect
+	github.com/fluxcd/pkg/apis/meta v1.38.0 // indirect
+	github.com/fluxcd/source-controller/api v1.10.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.6 // indirect
 	github.com/giantswarm/apiextensions-application v0.6.2 // indirect
 	github.com/giantswarm/cluster-standup-teardown/v6 v6.1.2 // indirect
-	github.com/giantswarm/gitsemver/v3 v3.0.5 // indirect
+	github.com/giantswarm/gitsemver/v3 v3.0.8 // indirect
 	github.com/giantswarm/k8smetadata v0.26.0 // indirect
 	github.com/giantswarm/kubectl-gs/v2 v2.57.0 // indirect
 	github.com/giantswarm/microerror v0.4.1 // indirect
@@ -126,7 +126,7 @@ require (
 	github.com/prometheus/client_golang v1.25.0 // indirect
 	github.com/prometheus/client_model v0.6.3 // indirect
 	github.com/prometheus/common v0.72.1 // indirect
-	github.com/prometheus/procfs v0.22.0 // indirect
+	github.com/prometheus/procfs v0.23.0 // indirect
 	github.com/rubenv/sql-migrate v1.8.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3 // indirect
@@ -175,8 +175,8 @@ require (
 	k8s.io/kube-openapi v0.0.0-20260821135717-be32def86098 // indirect
 	k8s.io/kubectl v0.37.1 // indirect
 	k8s.io/streaming v0.37.1 // indirect
-	k8s.io/utils v0.0.0-20260707023825-cf1189d6abe3 // indirect
-	oras.land/oras-go/v2 v2.6.4 // indirect
+	k8s.io/utils v0.0.0-20261023123148-ca04ba58ecab // indirect
+	oras.land/oras-go/v2 v2.7.0 // indirect
 	sigs.k8s.io/cluster-api v1.14.3 // indirect
 	sigs.k8s.io/cluster-api/api v1.14.3 // indirect
 	sigs.k8s.io/controller-runtime v0.25.2 // indirect
