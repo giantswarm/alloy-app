@@ -3,7 +3,7 @@ module e2e
 go 1.27.3
 
 require (
-	github.com/giantswarm/apptest-framework/v5 v5.4.1
+	github.com/giantswarm/apptest-framework/v5 v5.4.2
 	github.com/giantswarm/clustertest/v5 v5.6.5
 	github.com/onsi/ginkgo/v2 v2.33.1
 	github.com/onsi/gomega v1.44.0
