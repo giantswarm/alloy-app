@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade Alloy upstream chart from 1.13.0 to 1.15.0 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/operations/helm/charts/alloy/CHANGELOG.md#1150-2026-10-29))
+  - This bumps the version of Alloy from 1.20.0 to 1.21.3 ([CHANGELOG](https://github.com/grafana/alloy/blob/main/CHANGELOG.md#1213-2026-10-28)).
+  - Alloy Breaking changes
+    - [loki.write] A `wal` block with `enabled = true` requires `--stability.level=experimental`.
+    - [loki.write] Metrics no longer carry the `tenant` label.
+    - [otelcol.receiver.kafka, otelcol.exporter.kafka] `metadata > retry > max_retries` defaults to `20` and is applied.
+    - [otelcol.connector.signaltometrics] `error_mode` defaults to `ignore`.
+    - [prometheus.exporter.catchpoint] The experimental component is removed.
+    - See [Alloy v1.21.0](https://github.com/grafana/alloy/releases/tag/v1.21.0) release notes
+  - Update `prometheus-config-reloader` from v0.94.0 to v0.94.2.
+  - Add `image.distroless`, `alloy.resizePolicy` and `configReloader.resizePolicy` values.
+
+### Fixed
+
+- `mimir.rules.kubernetes` recovers after a restart while Mimir is unreachable. It no longer stays unhealthy until the next pod restart ([grafana/alloy#7554](https://github.com/grafana/alloy/pull/7554)).
+
 ## [0.24.0] - 2026-09-29
 
 ### Added
