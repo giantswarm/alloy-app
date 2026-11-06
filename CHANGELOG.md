@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update github.com/onsi/ginkgo/v2 to v2.34.0 (giantswarm/alloy-app#391)
+
 ## [0.25.0] - 2026-11-03
 
 ### Changed
