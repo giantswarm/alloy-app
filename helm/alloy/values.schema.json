@@ -277,6 +277,14 @@
                 "exceptions": {
                     "type": "array"
                 },
+                "legacy": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        }
+                    }
+                },
                 "namespace": {
                     "type": "string"
                 }
