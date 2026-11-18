@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update github.com/onsi/ginkgo/v2 to v2.34.0 (giantswarm/alloy-app#391)
 - Update github.com/giantswarm/clustertest/v5 to v5.6.7 (giantswarm/alloy-app#408)
+- Update github.com/giantswarm/apptest-framework/v5 to v5.4.5 (giantswarm/alloy-app#409)
 
 ## [0.25.0] - 2026-11-03
 
