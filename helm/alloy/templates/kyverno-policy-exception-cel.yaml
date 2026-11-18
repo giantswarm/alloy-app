@@ -63,5 +63,5 @@ spec:
       request.kind.kind in ['Deployment', 'DaemonSet', 'StatefulSet', 'ReplicaSet', 'Pod', 'ServiceAccount'] &&
       request.namespace == '{{ .Release.Namespace }}' &&
       has(object.metadata.name) &&
-      object.metadata.name.startsWith('{{ include "alloy.fullname" . }}')
+      (object.metadata.name == '{{ include "alloy.fullname" . }}' || object.metadata.name.startsWith('{{ include "alloy.fullname" . }}-'))
 {{- end }}
