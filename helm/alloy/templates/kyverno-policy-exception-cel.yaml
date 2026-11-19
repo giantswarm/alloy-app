@@ -1,0 +1,67 @@
+{{- if and .Values.alloy.enabled .Values.kyvernoPolicyExceptions.enabled }}
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+  labels:
+    {{- include "alloy.labels" . | nindent 4 }}
+  name: {{ include "alloy.fullname" . }}
+  namespace: {{ .Values.kyvernoPolicyExceptions.namespace | default .Release.Namespace }}
+spec:
+  policyRefs:
+  - name: disallow-host-path
+    kind: ValidatingPolicy
+  - name: restrict-volume-types
+    kind: ValidatingPolicy
+{{- if not .Values.alloy.alloy.securityContext.runAsNonRoot }}
+  - name: require-run-as-non-root-user
+    kind: ValidatingPolicy
+{{- end }}
+  {{- range .Values.kyvernoPolicyExceptions.exceptions }}
+  - name: {{ .policyName | quote }}
+    kind: ValidatingPolicy
+  {{- end }}
+{{- if not .Values.alloy.alloy.securityContext.runAsNonRoot }}
+  # require-run-as-nonroot is missing from the legacy exception. It is excepted
+  # because alloy-logs fails it when it runs as root (runAsNonRoot: false).
+  - name: require-run-as-nonroot
+    kind: ValidatingPolicy
+  # require-non-root-groups is missing from the legacy exception. It is excepted
+  # because alloy-logs fails it when it runs as root (runAsGroup: 0).
+  - name: require-non-root-groups
+    kind: ValidatingPolicy
+{{- end }}
+  # require-container-requests-and-limits is a supplemental policy and usually
+  # not enabled. It is excepted because the alloy workloads fail it when the
+  # policy is enforced.
+  - name: require-container-requests-and-limits
+    kind: ValidatingPolicy
+  # require-pod-probes is a supplemental policy and usually not enabled. It is
+  # excepted because the alloy workloads fail it when the policy is enforced.
+  - name: require-pod-probes
+    kind: ValidatingPolicy
+  # require-emptydir-requests-and-limits is a supplemental policy and usually
+  # not enabled. It is excepted because the alloy workloads (alloy-tmp emptyDir)
+  # fail it when the policy is enforced.
+  - name: require-emptydir-requests-and-limits
+    kind: ValidatingPolicy
+  # require-ro-rootfs is a supplemental policy and usually not enabled. It is
+  # excepted because alloy-events (readOnlyRootFilesystem: false) fails it when
+  # the policy is enforced.
+  - name: require-ro-rootfs
+    kind: ValidatingPolicy
+  # restrict-sa-automount-sa-token is a supplemental policy and usually not
+  # enabled. It is excepted because the alloy ServiceAccounts fail it when the
+  # policy is enforced.
+  - name: restrict-sa-automount-sa-token
+    kind: ValidatingPolicy
+  matchConditions:
+  - name: alloy-workloads
+    # ServiceAccount is matched for restrict-sa-automount-sa-token.
+    expression: >-
+      request.kind.kind in ['Deployment', 'DaemonSet', 'StatefulSet', 'ReplicaSet', 'Pod', 'ServiceAccount'] &&
+      request.namespace == '{{ .Release.Namespace }}' &&
+      has(object.metadata.name) &&
+      (object.metadata.name == '{{ include "alloy.fullname" . }}' || object.metadata.name.startsWith('{{ include "alloy.fullname" . }}-'))
+{{- end }}
