@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add a PolicyException for the Kyverno CEL policies.
+- Label the `kyverno.io/v2` PolicyException with `policy.giantswarm.io/migrated-to-cel: "true"`, to mark it as migrated to CEL.
+
 ### Changed
 
+- Move the PolicyExceptions to `kube-system`.
 - Update github.com/onsi/ginkgo/v2 to v2.34.0 (giantswarm/alloy-app#391)
 - Update github.com/giantswarm/clustertest/v5 to v5.6.7 (giantswarm/alloy-app#408)
 - Update github.com/giantswarm/apptest-framework/v5 to v5.4.5 (giantswarm/alloy-app#409)
